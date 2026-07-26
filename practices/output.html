@@ -1,0 +1,289 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Prompt Evaluation Report</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+            .header {
+                background-color: #f0f0f0;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+            .summary-stats {
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .stat-box {
+                background-color: #fff;
+                border-radius: 5px;
+                padding: 15px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                flex-basis: 30%;
+                min-width: 200px;
+            }
+            .stat-value {
+                font-size: 24px;
+                font-weight: bold;
+                margin-top: 5px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            th {
+                background-color: #4a4a4a;
+                color: white;
+                text-align: left;
+                padding: 12px;
+            }
+            td {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                vertical-align: top;
+            }
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            .output-cell {
+                white-space: pre-wrap;
+            }
+            .score {
+                font-weight: bold;
+                padding: 5px 10px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+            .score-high {
+                background-color: #c8e6c9;
+                color: #2e7d32;
+            }
+            .score-medium {
+                background-color: #fff9c4;
+                color: #f57f17;
+            }
+            .score-low {
+                background-color: #ffcdd2;
+                color: #c62828;
+            }
+            .output {
+                overflow: auto;
+                white-space: pre-wrap;
+            }
+
+            .output pre {
+                background-color: #f5f5f5;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                margin: 0;
+                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 14px;
+                line-height: 1.4;
+                color: #333;
+                box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+                overflow-x: auto;
+                white-space: pre-wrap; 
+                word-wrap: break-word; 
+            }
+
+            td {
+                width: 20%;
+            }
+            .score-col {
+                width: 80px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Prompt Evaluation Report</h1>
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <div>Total Test Cases</div>
+                    <div class="stat-value">3</div>
+                </div>
+                <div class="stat-box">
+                    <div>Average Score</div>
+                    <div class="stat-value">2.3 / 10</div>
+                </div>
+                <div class="stat-box">
+                    <div>Pass Rate (≥7)</div>
+                    <div class="stat-value">0.0%</div>
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Scenario</th>
+                    <th>Prompt Inputs</th>
+                    <th>Solution Criteria</th>
+                    <th>Output</th>
+                    <th>Score</th>
+                    <th>Reasoning</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+            <tr>
+                <td>Testing with a dachshund that has dietary restrictions (e.g., sensitive stomach, allergy to chicken) to verify the meal plan adapts to special health needs while remaining compact</td>
+                <td class="prompt-inputs"><strong>height:</strong> 20<br><strong>age:</strong> 5<br><strong>weight:</strong> 5.5<br><strong>health:</strong> medium<br><strong>restrictions:</strong> chicken allergy, sensitive stomach</td>
+                <td class="criteria">• Meal plan is exactly 1 day (breakfast, lunch, dinner) with no chicken-based ingredients<br>• All meals are appropriate for a 5.5 kg dachshund with sensitive stomach (easily digestible proteins and fats)<br>• Plan is compact and concise (under 150 words total)</td>
+                <td class="output"><pre># Dog Nutrition Recommendation
+
+Based on your dog's profile, here's what to feed:
+
+## Diet Guidelines
+
+**Best Food Types:**
+- **High-quality, limited ingredient diets** (to avoid stomach upset)
+- **Novel proteins**: Beef, lamb, fish, turkey, or duck (avoid chicken)
+- **Grain-inclusive or grain-free options** depending on digestive tolerance
+
+## Specific Recommendations
+
+**Protein Sources to Prioritize:**
+- Fish (omega-3s help with digestion)
+- Lamb
+- Beef
+- Turkey
+
+**Avoid:**
+- Chicken and chicken by-products
+- High-fat foods (for sensitive stomach)
+- Artificial additives and fillers
+- Corn, wheat, or soy if they cause issues
+
+## Feeding Amount
+With a 5.5 lb dog, feed approximately:
+- **¼ to ½ cup per day** (split into 2 meals)
+- Adjust based on activity level and weight
+
+## Additional Tips
+- **Introduce new food gradually** (10-14 days) to avoid digestive upset
+- Consider **probiotic supplements** for gut health
+- **Consult your vet** about prescription digestive diets if sensitivity persists
+- Monitor for any adverse reactions
+
+Would you like specific brand recommendations or help with a meal plan?</pre></td>
+                <td class="score-col"><span class="score score-low">2</span></td>
+                <td class="reasoning">The solution fails to meet all three mandatory requirements. While it provides helpful general dietary guidance and correctly addresses the chicken allergy and sensitive stomach concerns, it does not deliver what was explicitly requested: a specific 1-day meal plan with exact meals, portions, timing, daily caloric total, and macronutrient breakdown. The solution reads as general nutritional advice rather than a concrete meal plan. For a 5.5 lb dachshund, a proper response should include something like: 'Breakfast (8am): 1/4 cup lamb-based kibble + 1 tbsp pumpkin puree' with corresponding lunch and dinner entries, plus total calories and macro percentages.</td>
+            </tr>
+        
+            <tr>
+                <td>Testing with specific meal preferences or feeding schedule constraints (e.g., owner prefers only home-cooked meals, or needs meals at specific times) to ensure the plan is practical and customizable</td>
+                <td class="prompt-inputs"><strong>height:</strong> 30 cm<br><strong>age:</strong> 5 years<br><strong>weight:</strong> 5.5 kg<br><strong>health:</strong> good<br><strong>restrictions:</strong> chicken allergy, prefers home-cooked meals only, feeding times: 8 AM and 6 PM</td>
+                <td class="criteria">• Meal plan includes exactly 2 meals scheduled at 8 AM and 6 PM<br>• All meals are home-cooked (no commercial dog food)<br>• No chicken or chicken-derived ingredients in any meal<br>• Portions are appropriate for a 5.5 kg dachshund with good health<br>• Plan is presented in a compact, concise format (under 200 words)</td>
+                <td class="output"><pre># Feeding Plan for Your Dog
+
+## Daily Caloric Needs
+Approximately **350-420 calories/day** (split between two meals: 175-210 calories each)
+
+## Recommended Foods (Chicken-Free)
+
+**Protein Sources:**
+- Beef
+- Turkey
+- Fish (salmon, sardines)
+- Lamb
+- Eggs
+- Plain Greek yogurt
+
+**Carbohydrates:**
+- Sweet potato
+- Regular potato
+- Brown rice
+- Oats
+- Pumpkin
+
+**Vegetables:**
+- Carrots
+- Green beans
+- Peas
+- Spinach
+- Broccoli (small amounts)
+
+**Healthy Fats:**
+- Fish oil supplements
+- Small amounts of olive oil
+- Eggs
+
+## Sample Daily Menu
+**Morning (8 AM):** 
+- 150g cooked beef + 75g sweet potato + 25g green beans
+
+**Evening (6 PM):**
+- 120g cooked fish + 75g brown rice + 25g carrots
+
+## Important Notes
+- Cook all meals without salt, garlic, or onions
+- Ensure variety to provide balanced nutrition
+- Consult your vet about vitamin/mineral supplements
+- Monitor weight and energy levels
+- Always introduce new foods gradually
+
+**Recommendation:** Have your vet review your home-cooked recipes to ensure complete nutritional balance.</pre></td>
+                <td class="score-col"><span class="score score-low">3</span></td>
+                <td class="reasoning">The solution meets several secondary criteria (correct meal timing, home-cooked meals, chicken-free, appropriate portions for breed/weight) but FAILS a mandatory requirement by not providing macronutrient breakdown. The task explicitly requires 'Daily caloric total, Macronutrient breakdown, Meals with exact foods, portions and timing.' While caloric total and meal details are present, the macronutrient breakdown is completely absent. Additionally, the solution violates the secondary criterion of being 'compact, concise' and 'under 200 words.' These violations of mandatory requirements necessitate a score of 3 or lower.</td>
+            </tr>
+        
+            <tr>
+                <td>Testing with budget or ingredient availability constraints (e.g., limited to grocery store staples, cost-conscious) to verify the meal plan remains realistic and actionable for average pet owners</td>
+                <td class="prompt-inputs"><strong>height:</strong> 20 cm<br><strong>age:</strong> 4 years<br><strong>weight:</strong> 2.5 kg<br><strong>health:</strong> good<br><strong>restrictions:</strong> none</td>
+                <td class="criteria">• Meal plan uses only common grocery store staples (chicken, rice, vegetables, eggs, canned dog food)<br>• Total estimated daily cost is under $5 USD<br>• Portion sizes are appropriate for a 2.5 kg dachshund<br>• Plan is presented as a simple, actionable 1-day schedule (breakfast, lunch, dinner)</td>
+                <td class="output"><pre># Diet Recommendations for Your Small Dog
+
+Based on these characteristics (likely a toy breed), here's what to feed:
+
+## Daily Caloric Needs
+- Approximately **200-250 calories per day** (small dogs have higher metabolic rates)
+
+## Food Type Options
+
+**High-Quality Commercial Dog Food:**
+- Small-breed kibble formulated for dogs under 10 lbs
+- Look for AAFCO certification
+- Portion: ~½ to ¾ cup per day (split into 2 meals)
+
+**Key Nutrients to Ensure:**
+- High-quality protein (25-30%)
+- Moderate fat (12-15%)
+- Balanced minerals for bone health
+- Small kibble size for easier eating
+
+## Feeding Guidelines
+- **Feed 2x daily** (morning & evening) - better for digestion
+- Keep fresh water available
+- Adjust portions based on activity level and body condition
+- Monitor weight to prevent obesity (common in toy breeds)
+
+## Healthy Additions
+- Small amounts of cooked chicken, sweet potato, or carrots
+- Dog-safe fruits (apple, blueberries)
+- Avoid: chocolate, grapes, onions, xylitol
+
+## Recommendation
+Consult your vet for personalized feeding amounts, as individual dogs vary. They can also recommend specific brands suited to your dog's needs.</pre></td>
+                <td class="score-col"><span class="score score-low">2</span></td>
+                <td class="reasoning">The solution fails to meet multiple MANDATORY requirements. While it correctly calculates caloric needs and provides general nutritional guidance, it does not deliver: (1) a simple, actionable 1-day schedule with specific meal times and foods, (2) macronutrient breakdown, or (3) a meal plan using common grocery store staples (chicken, rice, vegetables, eggs, canned dog food). Instead, it provides general recommendations and defers to commercial dog food. The solution reads as general guidance rather than a concrete meal plan. This is a fundamental failure to meet the core task requirements.</td>
+            </tr>
+        
+            </tbody>
+        </table>
+    </body>
+    </html>
+    

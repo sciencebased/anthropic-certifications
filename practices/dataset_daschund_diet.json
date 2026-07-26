@@ -1,0 +1,53 @@
+[
+  {
+    "prompt_inputs": {
+      "height": "20",
+      "age": "5",
+      "weight": "5.5",
+      "health": "medium",
+      "restrictions": "chicken allergy, sensitive stomach"
+    },
+    "solution_criteria": [
+      "Meal plan is exactly 1 day (breakfast, lunch, dinner) with no chicken-based ingredients",
+      "All meals are appropriate for a 5.5 kg dachshund with sensitive stomach (easily digestible proteins and fats)",
+      "Plan is compact and concise (under 150 words total)"
+    ],
+    "task_description": "Write compact, concise 1 day meal plan for a single dashchund",
+    "scenario": "Testing with a dachshund that has dietary restrictions (e.g., sensitive stomach, allergy to chicken) to verify the meal plan adapts to special health needs while remaining compact"
+  },
+  {
+    "prompt_inputs": {
+      "height": "30 cm",
+      "age": "5 years",
+      "weight": "5.5 kg",
+      "health": "good",
+      "restrictions": "chicken allergy, prefers home-cooked meals only, feeding times: 8 AM and 6 PM"
+    },
+    "solution_criteria": [
+      "Meal plan includes exactly 2 meals scheduled at 8 AM and 6 PM",
+      "All meals are home-cooked (no commercial dog food)",
+      "No chicken or chicken-derived ingredients in any meal",
+      "Portions are appropriate for a 5.5 kg dachshund with good health",
+      "Plan is presented in a compact, concise format (under 200 words)"
+    ],
+    "task_description": "Write compact, concise 1 day meal plan for a single dashchund",
+    "scenario": "Testing with specific meal preferences or feeding schedule constraints (e.g., owner prefers only home-cooked meals, or needs meals at specific times) to ensure the plan is practical and customizable"
+  },
+  {
+    "prompt_inputs": {
+      "height": "20 cm",
+      "age": "4 years",
+      "weight": "2.5 kg",
+      "health": "good",
+      "restrictions": "none"
+    },
+    "solution_criteria": [
+      "Meal plan uses only common grocery store staples (chicken, rice, vegetables, eggs, canned dog food)",
+      "Total estimated daily cost is under $5 USD",
+      "Portion sizes are appropriate for a 2.5 kg dachshund",
+      "Plan is presented as a simple, actionable 1-day schedule (breakfast, lunch, dinner)"
+    ],
+    "task_description": "Write compact, concise 1 day meal plan for a single dashchund",
+    "scenario": "Testing with budget or ingredient availability constraints (e.g., limited to grocery store staples, cost-conscious) to verify the meal plan remains realistic and actionable for average pet owners"
+  }
+]
