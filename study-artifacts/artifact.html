@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCAR-F — Scenario Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAFB;--card:#FFF;--ink:#141821;--steel:#5C6573;--rule:#DEE1E7;--rule-soft:#EDEFF3;
+  --indigo:#2F3B8F;--indigo-soft:#EEF0FA;--ok:#1F6B52;--ok-soft:#E9F2EE;--bad:#9A2B32;--bad-soft:#F8EBEC;
+  --flag:#B87400;--flag-soft:#FBF2E2;--lang:#6A3E8E;--lang-soft:#F2ECF7;
+  --sans:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--serif:'Newsreader',Georgia,serif;
+}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.chrome{position:sticky;top:0;z-index:50;background:var(--ink);color:#fff;border-bottom:3px solid var(--indigo)}
+.chrome-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.chrome .code{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9AA3B8}
+.chrome .title{font-weight:600;font-size:14px;margin-right:auto}
+.timer{font-family:var(--mono);font-size:15px;font-weight:600;background:#232938;padding:5px 12px;border-radius:3px;letter-spacing:.06em}
+.timer.low{background:#4A1F24;color:#FFB9BE}
+.counter{font-family:var(--mono);font-size:12.5px;color:#9AA3B8}
+.progress{height:3px;background:#232938}.progress>i{display:block;height:100%;background:var(--indigo);width:0;transition:width .25s}
+h1,h2,h3{line-height:1.2;margin:0}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--indigo);font-weight:500}
+.muted{color:var(--steel)}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;padding:11px 22px;border-radius:3px;font-weight:600}
+.btn:hover{background:#000}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);padding:11px 22px;border-radius:3px;font-weight:600}
+.btn-ghost:hover{border-color:var(--ink);background:#fff}.btn-ghost:disabled{opacity:.35;cursor:not-allowed}
+.mk{background:transparent;border:1px solid var(--rule);color:var(--steel);padding:7px 12px;border-radius:3px;font-size:12.5px}
+.mk.on-review{background:var(--flag-soft);border-color:var(--flag);color:var(--flag);font-weight:600}
+.mk.on-lang{background:var(--lang-soft);border-color:var(--lang);color:var(--lang);font-weight:600}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+
+.intro{padding:56px 0 80px;max-width:820px}
+.intro h1{font-family:var(--serif);font-size:44px;font-weight:500;letter-spacing:-.015em;margin:14px 0 18px}
+.intro p{color:var(--steel);font-size:16px;max-width:66ch}
+.intro .lead{color:var(--ink);font-size:17.5px}
+.setup{margin:34px 0 12px;border-top:1px solid var(--rule)}
+.row{padding:20px 0;border-bottom:1px solid var(--rule-soft)}
+.row > label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);margin-bottom:11px}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.ch{border:1px solid var(--rule);background:#fff;border-radius:3px;padding:10px 16px;font-size:14px;text-align:left}
+.ch:hover{border-color:#A9B0BE}
+.ch.on{border-color:var(--indigo);background:var(--indigo-soft);font-weight:600;color:var(--indigo)}
+.ch small{display:block;font-weight:400;color:var(--steel);font-size:12px;margin-top:2px}
+.ch.on small{color:var(--indigo)}
+.note{background:var(--indigo-soft);border-left:3px solid var(--indigo);padding:16px 20px;margin:24px 0;font-size:14.5px}
+.note.lang{background:var(--lang-soft);border-left-color:var(--lang)}
+.bankline{font-family:var(--mono);font-size:12.5px;color:var(--steel);margin:18px 0 26px}
+
+.exam{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:40px;padding:32px 0 60px;align-items:start}
+.scenario{position:sticky;top:86px}
+.scenario-card{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:22px}
+.scenario-card h2{font-family:var(--serif);font-size:23px;font-weight:500;margin:9px 0 12px;letter-spacing:-.01em}
+.scenario-card .body{font-family:var(--serif);font-size:15.5px;line-height:1.62;color:#2C3341}
+.scenario-card .body p{margin:0 0 11px}
+.facts{margin-top:16px;border-top:1px solid var(--rule-soft);padding-top:14px;padding-left:0}
+.facts li{font-family:var(--mono);font-size:12px;color:var(--steel);list-style:none;padding:3px 0}
+.blocknote{margin-top:14px;font-size:12.5px;color:var(--steel)}
+.qcard{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:26px 28px}
+.qhead{display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap}
+.qnum{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--steel);text-transform:uppercase;margin-right:auto}
+.dbadge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;font-weight:600}
+.d1{background:#EFF1F4;color:var(--steel)}.d2{background:var(--flag-soft);color:var(--flag)}.d3{background:var(--bad-soft);color:var(--bad)}
+.selnote{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);font-weight:600;margin-bottom:10px}
+.stem{font-size:17px;line-height:1.55;margin:0 0 20px;font-weight:500}
+.stem code,.opt code,.ropt code{font-family:var(--mono);font-size:.88em;background:#F1F3F7;padding:1px 5px;border-radius:2px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;background:#fff;border:1px solid var(--rule);border-radius:3px;padding:14px 16px;line-height:1.5;transition:border-color .12s,background .12s}
+.opt:hover{border-color:#A9B0BE;background:#FCFCFD}
+.opt .ltr{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--steel);border:1px solid var(--rule);width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px;border-radius:2px}
+.opt.multi .ltr{border-radius:2px}
+.opt.sel{border-color:var(--indigo);background:var(--indigo-soft)}
+.opt.sel .ltr{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.nav{display:flex;gap:10px;margin-top:22px;align-items:center;flex-wrap:wrap}
+.nav .right{margin-left:auto;display:flex;gap:10px}
+.qgrid{margin-top:26px;background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:18px 20px}
+.qgrid h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);font-weight:500;margin-bottom:12px}
+.dots{display:flex;flex-wrap:wrap;gap:7px}
+.dot{width:34px;height:34px;border-radius:3px;border:1px solid var(--rule);background:#fff;font-family:var(--mono);font-size:12.5px;color:var(--steel)}
+.dot.answered{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dot.fReview{border-color:var(--flag);border-width:2px}
+.dot.fLang{border-color:var(--lang);border-width:2px}
+.dot.current{outline:2px solid var(--indigo);outline-offset:2px}
+.dot.brk{margin-left:14px;border-left:3px solid var(--indigo)}
+.legend{display:flex;gap:18px;margin-top:13px;font-size:12px;color:var(--steel);flex-wrap:wrap}
+
+.report{padding:46px 0 80px;max-width:900px}
+.report-sheet{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:44px 48px}
+.report-sheet h1{font-size:27px;font-weight:700;text-align:center;letter-spacing:-.01em}
+.report-sheet .sub{text-align:center;font-size:19px;font-weight:600;margin-top:5px;color:var(--steel)}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:5px 30px;margin:32px 0 26px;font-size:13px}
+.meta span{font-family:var(--mono);font-size:12px}
+.scoreline{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:15px 0;margin:26px 0 0;font-weight:700;font-size:14.5px;letter-spacing:.02em}
+.grade-pass{color:var(--ok)}.grade-fail{color:var(--bad)}
+table.obj{width:100%;border-collapse:collapse;margin-top:26px;font-size:13.5px}
+table.obj th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);font-weight:500;border-bottom:1px solid var(--ink);padding:0 0 8px}
+table.obj th:last-child{text-align:right}
+table.obj td{padding:11px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+table.obj tr:nth-child(even) td{background:#FAFAFB}
+table.obj td.pct{text-align:right;font-family:var(--mono);font-weight:600;white-space:nowrap;padding-left:18px}
+.pct.p0{color:var(--bad)}.pct.p100{color:var(--ok)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;margin-right:6px}
+.pill.content{background:var(--flag-soft);color:var(--flag);border:1px solid var(--flag)}
+.pill.wording{background:var(--lang-soft);color:var(--lang);border:1px solid var(--lang)}
+.flagsum{margin-top:28px;border-top:1px solid var(--ink);padding-top:18px}
+.flagsum h3,.diag h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);font-weight:500;margin-bottom:12px}
+.flagsum table{width:100%;border-collapse:collapse;font-size:13.5px}
+.flagsum th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);font-weight:500;border-bottom:1px solid var(--rule);padding:0 0 7px}
+.flagsum td{padding:10px 0;border-bottom:1px solid var(--rule-soft);vertical-align:middle}
+.flagsum td.qn{font-family:var(--mono);width:44px;font-weight:600}
+.flagsum td.res{text-align:right;font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
+.flagsum td.res.w{color:var(--bad)}.flagsum td.res.r{color:var(--ok)}
+.flagsum .empty{color:var(--steel);font-size:14px;padding:6px 0}
+.diag{background:var(--lang-soft);border-left:3px solid var(--lang);padding:18px 22px;margin-top:28px;font-size:14.5px}
+.diag h3{color:var(--lang)}
+.diag .big{font-family:var(--serif);font-size:29px;font-weight:500;color:var(--ink);display:block;margin:4px 0 8px;line-height:1.15}
+.review{margin-top:52px}
+.review h2{font-family:var(--serif);font-size:30px;font-weight:500;margin-bottom:8px}
+.rfilter{display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap}
+.rq{background:#fff;border:1px solid var(--rule);border-radius:4px;padding:24px 26px;margin-top:16px}
+.rq.wrong{border-left:3px solid var(--bad)}.rq.right{border-left:3px solid var(--ok)}
+.verdict{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
+.verdict.w{color:var(--bad)}.verdict.r{color:var(--ok)}
+.ropt{display:flex;gap:12px;padding:9px 12px;border-radius:3px;margin-top:6px;font-size:14px;line-height:1.5}
+.ropt .ltr{font-family:var(--mono);font-size:12px;font-weight:600;flex:none}
+.ropt.correct{background:var(--ok-soft);color:#123F30}
+.ropt.chosen-wrong{background:var(--bad-soft);color:#63181D}
+.expl{margin-top:16px;border-top:1px solid var(--rule-soft);padding-top:15px;font-size:14.5px}
+.expl b{color:var(--indigo)}
+.ask{margin-top:12px;background:var(--lang-soft);border-radius:3px;padding:10px 14px;font-size:13.5px;color:#3E2A50}
+.ask b{color:var(--lang);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;background:#F1F3F7;color:var(--steel);padding:3px 8px;border-radius:2px;margin-top:12px}
+.gloss{margin-top:52px;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:30px 32px}
+.gloss h2{font-family:var(--serif);font-size:27px;font-weight:500;margin-bottom:6px}
+.gloss table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
+.gloss th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);font-weight:500;border-bottom:1px solid var(--ink);padding:0 0 8px}
+.gloss td{padding:12px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+.gloss td:first-child{width:34%;padding-right:22px;font-weight:600}
+.gloss em{color:var(--lang);font-style:normal;font-weight:600}
+.modal-veil{position:fixed;inset:0;background:rgba(20,24,33,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:5px;max-width:460px;width:100%;padding:30px 32px;box-shadow:0 18px 50px rgba(20,24,33,.28)}
+.modal h3{font-family:var(--serif);font-size:25px;font-weight:500;margin-bottom:10px}
+.modal p{color:var(--steel);font-size:14.5px;margin:0}
+.modal .acts{display:flex;gap:10px;margin-top:26px;justify-content:flex-end;flex-wrap:wrap}
+.hidden{display:none}
+@media (max-width:900px){
+  .exam{grid-template-columns:1fr;gap:20px}.scenario{position:static}
+  .intro h1{font-size:32px}.report-sheet,.gloss{padding:26px 20px}
+  .meta{grid-template-columns:1fr}.qcard{padding:20px}
+  .gloss td:first-child{width:auto;display:block;padding-bottom:2px}
+  .gloss td{display:block;border:none;padding:6px 0}
+  .gloss tr{display:block;border-bottom:1px solid var(--rule-soft);padding:8px 0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="chrome hidden" id="chrome">
+  <div class="chrome-in">
+    <span class="code">CCAR-F</span>
+    <span class="title" id="chromeTitle"></span>
+    <span class="counter" id="counter"></span>
+    <span class="timer" id="timer">00:00</span>
+  </div>
+  <div class="progress"><i id="progressBar"></i></div>
+</div>
+
+<section id="screenIntro" class="wrap intro">
+  <div class="eyebrow">Scenario trainer · Not affiliated with Anthropic</div>
+  <h1>Randomised drills in the shape of the real exam.</h1>
+  <p class="lead">Questions are drawn fresh each run, grouped into scenario blocks the way the live exam groups them, with the option order shuffled so you cannot memorise letter positions.</p>
+  <p class="bankline" id="bankLine"></p>
+
+  <div class="setup">
+    <div class="row"><label>Length</label><div class="choices" id="cLen"></div></div>
+    <div class="row"><label>Difficulty</label><div class="choices" id="cDiff"></div></div>
+    <div class="row"><label>Scenarios</label><div class="choices" id="cScope"></div></div>
+    <div class="row"><label>Coverage</label><div class="choices" id="cFocus"></div></div>
+  </div>
+
+  <div class="note">
+    <b>The exam's real shape.</b> Four scenarios are drawn from a pool of six, and roughly fifteen questions come from each. It is not sixty independent questions — it is four long cases. The default setting below reproduces that draw.
+  </div>
+  <div class="note lang">
+    <b>Two flags, not one.</b> <b>Flag: content</b> when you know what is being asked but not the answer. <b>Flag: wording</b> when the sentence itself is slowing you down. The report separates them so you learn whether your losses are knowledge or reading speed.
+  </div>
+
+  <button class="btn" id="startBtn">Start</button>
+</section>
+
+<section id="screenExam" class="wrap exam hidden">
+  <aside class="scenario">
+    <div class="scenario-card">
+      <div class="eyebrow" id="scEyebrow"></div>
+      <h2 id="scTitle"></h2>
+      <div class="body" id="scBody"></div>
+      <ul class="facts" id="scFacts"></ul>
+      <div class="blocknote" id="scNote"></div>
+    </div>
+  </aside>
+  <main>
+    <div class="qcard">
+      <div class="qhead">
+        <span class="qnum" id="qNum"></span>
+        <span class="dbadge" id="dBadge"></span>
+        <button class="mk" id="flagReview">Flag: content</button>
+        <button class="mk" id="flagLang">Flag: wording</button>
+      </div>
+      <div class="selnote hidden" id="selNote"></div>
+      <p class="stem" id="qStem"></p>
+      <div class="opts" id="qOpts"></div>
+      <div class="nav">
+        <button class="btn-ghost" id="prevBtn">Previous</button>
+        <div class="right">
+          <button class="btn-ghost" id="nextBtn">Next</button>
+          <button class="btn" id="submitBtn">Submit answers</button>
+        </div>
+      </div>
+    </div>
+    <div class="qgrid">
+      <h3>Navigation</h3>
+      <div class="dots" id="dots"></div>
+      <div class="legend"><span>■ Answered</span><span>▣ Flagged: content</span><span>▣ Flagged: wording</span><span>│ Scenario break</span></div>
+    </div>
+  </main>
+</section>
+
+<section id="screenReport" class="wrap report hidden">
+  <div class="report-sheet">
+    <h1>Claude Certified Architect Foundations</h1>
+    <div class="sub">Trainer — Objective Report</div>
+    <div class="meta">
+      <div><b>MODE:</b> <span id="repMode"></span></div>
+      <div><b>DATE:</b> <span id="repDate"></span></div>
+      <div><b>QUESTIONS:</b> <span id="repN"></span></div>
+      <div><b>TIME USED:</b> <span id="repTime"></span></div>
+      <div><b>SCENARIOS:</b> <span id="repScen"></span></div>
+      <div><b>EXAM CODE:</b> <span>CCAR-F</span></div>
+    </div>
+    <div class="scoreline">
+      <span>REFERENCE: 720</span><span id="repScore"></span><span id="repGrade"></span>
+    </div>
+    <table class="obj">
+      <thead><tr><th>Test objective</th><th>Percent correct</th></tr></thead>
+      <tbody id="repBody"></tbody>
+    </table>
+    <div class="flagsum"><h3>Questions you flagged</h3><div id="flagSumBody"></div></div>
+    <div class="diag"><h3>Wording vs. content</h3><span class="big" id="diagBig"></span><span id="diagText"></span></div>
+    <p class="muted" style="font-size:12.5px;margin-top:20px">Linear conversion to the 100–1000 scale. The real exam uses equated scoring, so treat this as orientation, not prediction.</p>
+  </div>
+
+  <div class="gloss">
+    <h2>The hinge words</h2>
+    <p class="muted">Stems are long, but the decision usually turns on one construction.</p>
+    <table>
+      <thead><tr><th>Construction</th><th>What it signals</th></tr></thead>
+      <tbody>
+        <tr><td>regardless of how / independent of / no matter what</td><td>The guarantee must hold when the model is not involved. Rules out prompt-based options; points to <em>deterministic enforcement</em> — a hook, a settings rule, an orchestration check.</td></tr>
+        <tr><td>first / initial intervention</td><td>Tests ordering, not correctness. A defensible-but-later step is a deliberate distractor. Ask <em>what comes first</em>, not <em>what would work</em>.</td></tr>
+        <tr><td>most directly addresses</td><td>Several options are partially right. Take the one that hits the stated failure at its cause, not the one that adds the most machinery.</td></tr>
+        <tr><td>which combination / select two</td><td>The answer must cover <em>every</em> failure listed. Enumerate the symptoms and tick them off against each option.</td></tr>
+        <tr><td>before X is verified / until X succeeds</td><td>A precondition, not a preference. The right control blocks outright rather than asking for confirmation.</td></tr>
+        <tr><td>on the reasoning that…</td><td>You are handed someone's justification and asked to find the flaw <em>in the reasoning</em> — which may differ from the outcome being wrong.</td></tr>
+        <tr><td>rather than</td><td>Names the anti-pattern under test. Whatever follows it is what the wrong answers will do.</td></tr>
+        <tr><td>while keeping … unchanged</td><td>A constraint, not filler. An option that changes that thing is disqualified however good it sounds.</td></tr>
+        <tr><td>has been / continues to / still</td><td>Present perfect marks the fix already tried and failed. Options that do more of it are wrong by construction.</td></tr>
+        <tr><td>confirm / logs show / testing reveals</td><td>Evidence you must treat as true. If logs confirm a subagent returned complete results, the failure is upstream of it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="review">
+    <h2>Review</h2>
+    <div class="rfilter">
+      <button class="ch on" id="fAll">All</button>
+      <button class="ch" id="fWrong">Incorrect only</button>
+      <button class="ch" id="fFlag">Flagged only</button>
+    </div>
+    <div id="reviewList"></div>
+    <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="retryBtn">New randomised set</button>
+      <button class="btn-ghost" id="backBtn">Change settings</button>
+    </div>
+  </div>
+</section>
+
+<div class="modal-veil hidden" id="confirmVeil">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+    <h3 id="cTitle">Submit answers?</h3>
+    <p id="confirmMsg"></p>
+    <div class="acts">
+      <button class="btn-ghost" id="confirmNo">Keep working</button>
+      <button class="btn" id="confirmYes">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ SCENARIOS ============ */
+const SCENARIOS = [
+  { id:0, title:"Customer Support Resolution Agent",
+    body:`<p>You are building a customer support resolution agent with the Claude Agent SDK for an e-commerce retailer. It handles high-ambiguity requests: returns, billing disputes, shipping problems.</p><p>The agent runs autonomously until the case is resolved or transferred. Leadership targets 80%+ first-contact resolution. Automatic refunds are capped at USD 500 by policy.</p>`,
+    facts:["get_customer","lookup_order","process_refund","escalate_to_human","Refund cap: USD 500"] },
+  { id:1, title:"Multi-Agent Research System",
+    body:`<p>You are building a multi-agent research system with the Claude Agent SDK. A coordinator receives research queries and delegates to specialised subagents: search, analyse, synthesise, report.</p><p>Reports go to analysts who make investment decisions, so omissions are more costly than delays.</p>`,
+    facts:["coordinator","search_subagent","analyze_subagent","synthesize_subagent","report_subagent"] },
+  { id:2, title:"Code Generation with Claude Code",
+    body:`<p>Your team uses Claude Code for code generation, refactoring, debugging and documentation across a monorepo with several services.</p><p>Standards vary by directory: the payments service has stricter review rules than the internal tooling packages. New engineers join every month.</p>`,
+    facts:["monorepo, ~40 packages","services/payments (strict)","tools/internal (relaxed)","Team of 14 engineers"] },
+  { id:3, title:"Claude Code for Continuous Integration",
+    body:`<p>You are integrating Claude Code into a CI/CD pipeline. It runs automated code reviews on pull requests, generates release notes, and gates merges on findings.</p><p>Developers wait on the pre-merge check, and false positives erode trust in the gate faster than missed issues do.</p>`,
+    facts:["Pre-merge review job","Nightly release-notes job","Merge gate on severity","~120 PRs / week"] },
+  { id:4, title:"Structured Data Extraction",
+    body:`<p>You are building a structured extraction system. Claude reads vendor invoices converted from PDF to text and emits records validated against a JSON schema.</p><p>Layouts vary widely, some fields are genuinely absent, and extractions feed accounts payable. A human review queue exists with limited capacity.</p>`,
+    facts:["vendor_name","invoice_number","issue_date","due_date","currency","line_items[]","total"] },
+  { id:5, title:"Developer Productivity with Claude",
+    body:`<p>You are building developer productivity tools with the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, and answer questions about how services fit together.</p><p>Repositories are large; a single service can exceed the context window several times over.</p>`,
+    facts:["Legacy Java + Python services","No current architecture docs","Sessions often span hours","MCP servers for Jira and Confluence"] }
+];
+
+/* ============ OBJECTIVES ============ */
+const OBJ = {
+  ORCH:"Design orchestration-layer safeguards ensuring every agent session ends with a completed resolution or human escalation, regardless of how the agentic loop terminates.",
+  ESCAL:"Apply escalation decision criteria to determine when an agent should immediately honor a human escalation request versus attempt autonomous resolution.",
+  ENFPLACE:"Distinguish instructions that must be enforced through settings permissions or hooks from those appropriately placed in CLAUDE.md, and restructure configurations accordingly.",
+  POSTHOOK:"Implement PostToolUse hooks that automatically enforce code quality constraints after every file edit, independent of model instruction-following.",
+  SCHEMA:"Design extraction schemas with optional fields, nullable values, and appropriate enum definitions that represent missing or ambiguous information without fabricating values.",
+  FEEDBACK:"Design feedback loop mechanisms that capture structured metadata about model errors and use those patterns to improve prompts, schemas, or few-shot examples.",
+  ITER:"Structure iterative refinement workflows with concrete input-output examples, targeted feedback on specific failures, and batched issue descriptions.",
+  TOOLDESC:"Improve tool selection reliability by expanding tool descriptions with use-case examples, input format specifications, and explicit disambiguation guidance.",
+  CTX:"Apply context management strategies—subagent isolation, scratchpad files, targeted file reading—to sustain coherent exploration across sessions exceeding context limits.",
+  DECOMP:"Decompose complex tasks into dynamically generated subtasks that adapt as new information is discovered.",
+  ROUTING:"Design human review routing strategies based on confidence scores, document characteristics, and field-level ambiguity rather than random sampling.",
+  EXTRACT:"Apply extraction accuracy patterns—structured schemas, format normalization, few-shot examples—to reduce hallucination across varied document formats.",
+  HOOKS:"Apply PreToolUse and PostToolUse hook patterns to enforce business rules and policy constraints not delegated to model discretion.",
+  LOOP:"Explain how the agentic loop uses model responses and stop_reason signals to decide whether to continue tool execution or terminate.",
+  SUBAG:"Orchestrate multi-agent systems with coordinator-subagent patterns.",
+  HANDOFF:"Design structured handoff packages that preserve accumulated context, findings, and authorization state when transferring control.",
+  ERRPROP:"Propagate errors across multi-agent systems with failure type, attempted actions, partial results, and alternatives.",
+  MCPERR:"Implement MCP tool error handling that surfaces structured, type-specific error information including recoverability status and suggested next actions.",
+  MCPSCOPE:"Configure MCP servers and project settings at the correct scope—project-level for shared tooling, user-level for personal configurations.",
+  TOOLCHOICE:"Configure the tool_choice parameter to guarantee tool invocation and sequence multi-tool workflows so prerequisite data is obtained first.",
+  CONFIGMECH:"Select the correct Claude Code configuration mechanism—CLAUDE.md, .claude/rules/ with glob patterns, Skills, hooks, or settings permissions—based on guidance type and when it should apply.",
+  CLAUDEMD:"Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization.",
+  SLASH:"Create and deploy custom slash commands and skills in the correct project or user directory.",
+  PLANMODE:"Determine when to use plan mode versus direct execution based on task scope, reversibility, and architectural uncertainty.",
+  CI:"Integrate Claude Code into CI/CD pipelines with correct non-interactive configuration and structured output.",
+  EXPLORE:"Apply systematic codebase exploration strategies using Grep, Glob, and Read that build incremental understanding while managing context.",
+  STRUCTOUT:"Select and implement the most reliable structured output method based on required schema compliance strictness.",
+  BATCH:"Select the appropriate API processing mode—synchronous Messages API or asynchronous Message Batches API—based on latency requirements.",
+  CASEFACTS:"Manage conversation context to preserve critical information across long interactions.",
+  RESUME:"Apply session resumption techniques—targeted re-analysis of changed files and context injection—to restore agent state without repeating prior work.",
+  STATELESS:"Explain why conversation history must be explicitly included in each API request and identify the correct mechanism for maintaining state."
+};
+
+/* d: 1 standard · 2 hard · 3 brutal ; m:true = multiple response */
+const BANK_A = [
+/* ---------- SCENARIO 0 · CUSTOMER SUPPORT ---------- */
+{s:0,o:"ESCAL",d:2,
+q:"A customer sends a long, angry message about a delayed shipment. Sentiment analysis flags high frustration. Policy explicitly covers shipping delays, and the agent has not yet called <code>lookup_order</code>. What should the agent do?",
+c:["Escalate immediately, because high frustration predicts poor autonomous resolution and early transfer protects satisfaction.",
+"Continue autonomous resolution — frustration alone is not a valid trigger; the triggers are an explicit request for a human, a policy gap, or an inability to progress.",
+"Escalate if the model's self-reported confidence for the case falls below 0.7.",
+"Escalate after three tool calls without resolution, to bound handling time."],
+a:1,
+e:"Three triggers are valid: explicit request, policy gap, no meaningful progress. Detected sentiment and self-reported confidence are not reliable signals, and here policy covers the case with an untried tool still available.",
+p:"Escalate on policy gaps, not on difficulty or emotion.",
+k:"¿Es la frustración un disparador válido de escalamiento?"},
+
+{s:0,o:"ESCAL",d:2,
+q:"The agent has located the order and is one step from issuing a valid USD 85 refund that resolves the ticket. The customer writes: \"just get me a real person.\" What should the agent do?",
+c:["Complete the refund first, since it resolves the case, then mention a human is available.",
+"Ask the customer to confirm, explaining the issue is nearly resolved.",
+"Honor the request immediately, passing accumulated context and the pending refund state to the human.",
+"Escalate only if the customer repeats the request, to protect the first-contact target."],
+a:2,
+e:"An explicit request for a human is unconditional. The 80% target is a business metric, not authorization to defer — and the three wrong options are attractive precisely because they appeal to it.",
+p:"An explicit request for a human is honored immediately, never negotiated.",
+k:"¿Puede la métrica de negocio retrasar un escalamiento pedido explícitamente?"},
+
+{s:0,o:"ESCAL",d:3,
+q:"Two tickets arrive. Ticket A: a return request for an item bought 400 days ago; the return policy covers 30 and 90-day windows and says nothing about items beyond a year. Ticket B: a billing dispute spanning six orders, three partial refunds and a currency change — complex, but every rule needed is documented. Which should escalate?",
+c:["Both, since each exceeds the complexity a support agent should handle autonomously.",
+"Ticket B only, because its multi-order reasoning has the higher chance of an incorrect resolution.",
+"Ticket A only, because policy is silent on that case, while B is merely complex and fully covered by existing rules.",
+"Neither — the agent should attempt resolution and escalate only if the customer objects to the outcome."],
+a:2,
+e:"The exam draws a hard line between <em>complex</em> (handle it with existing rules) and <em>uncovered</em> (escalate). Difficulty is not the criterion; the absence of applicable policy is.",
+p:"Complexity is handled; policy silence is escalated.",
+k:"Distinguir «caso difícil» de «caso sin política»."},
+
+{s:0,o:"ESCAL",d:3,m:true,
+q:"Which of the following are valid triggers for the agent to hand the session to a human? (Select two.)",
+c:["The customer's message contains language the sentiment classifier scores as highly negative.",
+"The agent has exhausted its available tools and cannot make further meaningful progress on the request.",
+"The model reports low confidence in its own proposed resolution.",
+"The request falls into a situation the agent's policy instructions do not cover."],
+a:[1,3],
+e:"Valid triggers are: explicit customer request, policy gap, and inability to progress. Sentiment and model self-reported confidence are both explicitly unreliable — the model has no calibration on its own certainty.",
+p:"Three triggers only: explicit request, policy gap, no progress.",
+k:"¿Cuáles son los disparadores válidos de escalamiento?"},
+
+{s:0,o:"ORCH",d:2,
+q:"Logs show a small fraction of sessions ending with neither resolution nor escalation: the loop stopped on <code>max_tokens</code> or an unhandled tool error and the session simply ended. What is the correct fix?",
+c:["Add a system-prompt instruction requiring the agent to always end with a resolution or an escalation.",
+"Add an orchestration-layer check that inspects each session's terminal state and fires <code>escalate_to_human</code> whenever the loop ended for any reason other than a completed resolution.",
+"Raise <code>max_tokens</code> and add retries to the tools so the loop is not cut off.",
+"Have the agent self-report at the end of every turn whether it resolved the case."],
+a:1,
+e:"\"Regardless of how the loop terminates\" includes terminations the model does not control. If the loop died, there is nobody left to instruct — only a deterministic check outside the loop covers every exit path.",
+p:"Critical guarantees live in deterministic code, not in the prompt.",
+k:"¿Quién garantiza el cierre cuando el bucle muere sin que el modelo intervenga?"},
+
+{s:0,o:"ORCH",d:3,
+q:"<code>lookup_order</code> returns a 503 after the agent already retrieved the customer record and billing history. What is the correct handling?",
+c:["Terminate the session and log the error for later operator review.",
+"Retry indefinitely until the provider responds, since order data is essential to the case.",
+"Continue silently and answer using the customer record alone.",
+"Continue with what is available, state which specific information could not be retrieved and why it matters, and offer escalation."],
+a:3,
+e:"Graceful degradation with transparency: keep processing, annotate the gap, surface it. Hard termination and silent failure are the two symmetric errors — silent failure being worse, because the answer looks complete.",
+p:"Annotate the gap; never hide it and never terminate over it.",
+k:"¿Qué hacer cuando una herramienta falla a mitad de sesión?"},
+
+{s:0,o:"HANDOFF",d:2,
+q:"When the agent escalates, the human operator currently receives only the raw conversation transcript. Operators report re-asking customers for information already given. What should the handoff package add?",
+c:["A sentiment summary and a predicted difficulty rating so the operator can triage the queue.",
+"The accumulated case facts, the findings from each tool call, and the authorization state of any action left pending.",
+"The full tool call logs including request and response payloads for every invocation.",
+"A model-generated summary of the conversation, replacing the transcript to save the operator reading time."],
+a:1,
+e:"A handoff package preserves context, findings and authorization state. Raw logs (C) bury the signal; a replacing summary (D) loses the transactional specifics that caused the re-asking in the first place.",
+p:"Handoff carries context, findings, and pending authorization state.",
+k:"¿Qué debe contener el paquete de traspaso a un humano?"},
+
+{s:0,o:"TOOLDESC",d:2,
+q:"The agent frequently calls <code>get_customer</code> when it needs order details. Both descriptions are one line: \"Retrieves customer information\" and \"Retrieves order information.\" What is the first intervention?",
+c:["Add a routing classifier before tool selection that decides which tool to invoke from the customer's text.",
+"Rewrite each description with exactly what it returns, expected input format, example queries it handles well, and explicit boundaries against the other tool.",
+"Merge both tools into one that returns customer and order data together.",
+"Add few-shot examples of correct tool choices for ambiguous cases to the system prompt."],
+a:1,
+e:"Descriptions are the primary selection mechanism, not incidental documentation. Option D is not wrong in the abstract — it is wrong as a <em>first</em> step, which is the distinction the stem is testing.",
+p:"When tools are misselected, fix the descriptions before anything else.",
+k:"¿Cuál es la PRIMERA corrección ante mala selección de herramientas?"},
+
+{s:0,o:"TOOLDESC",d:3,
+q:"After descriptions were rewritten, misrouting between <code>process_refund</code> and <code>escalate_to_human</code> dropped but did not disappear: the agent still escalates cases it could refund. Both descriptions are now detailed and accurate. What comes next?",
+c:["Revert to shorter descriptions, since the longer ones consume context that the agent needs for reasoning.",
+"Add two to four few-shot examples covering the specific boundary cases where the agent still chooses wrong.",
+"Force <code>tool_choice</code> to <code>process_refund</code> whenever a refund amount can be parsed from the conversation.",
+"Remove <code>escalate_to_human</code> from the tool list and trigger escalation from the orchestration layer instead."],
+a:1,
+e:"Descriptions come first, but they are not the only lever. Once descriptions are sound and a residual boundary ambiguity remains, targeted few-shot examples are the correct next step. Option C would force refunds on cases that genuinely need a human.",
+p:"Descriptions first, then few-shot for residual boundary cases.",
+k:"¿Qué sigue DESPUÉS de arreglar las descripciones?"},
+
+{s:0,o:"ENFPLACE",d:2,
+q:"The USD 500 refund cap lives in CLAUDE.md as a prose rule. A quarterly audit found three refunds above the cap. What is the correct restructuring?",
+c:["Move the rule to the top of CLAUDE.md in bold, imperative language.",
+"Add the constraint to the description text of <code>process_refund</code>.",
+"Add a <code>PreToolUse</code> hook on <code>process_refund</code> that reads the amount argument and returns <code>deny</code> above 500.",
+"Add a few-shot example showing the agent correctly declining an over-cap refund."],
+a:2,
+e:"CLAUDE.md, tool descriptions and few-shot examples are all probabilistic: they raise compliance but have a non-zero failure rate. A financial constraint with audit consequences needs deterministic enforcement.",
+p:"Critical rule with consequences = hook or settings; behavioural guidance = CLAUDE.md.",
+k:"¿Prompt o enforcement programático para una regla financiera?"},
+
+{s:0,o:"ENFPLACE",d:3,m:true,
+q:"Your team drafted four rules. Which two require enforcement through hooks or settings permissions rather than CLAUDE.md? (Select two.)",
+c:["Responses to customers should use the retailer's brand voice: warm, concise, never sarcastic.",
+"The agent must never call <code>process_refund</code> before <code>get_customer</code> has successfully returned a verified identity.",
+"When several orders match a query, prefer the most recent one unless the customer indicates otherwise.",
+"The agent must never read files under <code>/etc/</code> or outside the project working directory."],
+a:[1,3],
+e:"B is a hard sequencing precondition on a financial action and D is an access boundary — both need deterministic control. A and C are stylistic and heuristic preferences where a non-zero deviation rate is acceptable, which is exactly what CLAUDE.md is for.",
+p:"Hooks and settings for preconditions and boundaries; CLAUDE.md for preference and style.",
+k:"¿Cuáles reglas necesitan enforcement y cuáles son guía?"},
+
+{s:0,o:"CASEFACTS",d:2,
+q:"In sessions longer than about forty turns, the agent starts quoting wrong refund amounts and confusing order numbers between two issues the customer raised. Rolling summarisation is enabled. What is the fix?",
+c:["Summarise more frequently so less raw content accumulates between summaries.",
+"Maintain a persistent case-facts block holding amounts, dates and order IDs verbatim, kept out of summarisation and included in every prompt.",
+"Switch to the model with the largest context window and disable summarisation entirely.",
+"Ask the customer to restate the order number each time the agent needs it."],
+a:1,
+e:"Progressive summarisation silently corrupts transactional data — exact figures become paraphrase. More frequent summarisation (A) accelerates the damage. The fix is structural, not a bigger window.",
+p:"Transactional specifics live in a verbatim block that is never summarised.",
+k:"¿Por qué se pierden las cifras exactas en conversaciones largas?"},
+
+{s:0,o:"MCPERR",d:3,
+q:"<code>lookup_order</code> is asked for an order number that does not exist in the system. The database was reachable and the query ran normally. What should the tool return?",
+c:["<code>isError: true</code> with category <code>validation</code>, so the agent knows the input was wrong and can ask the customer to re-check.",
+"<code>isError: false</code> with an empty result set and a count of zero, plus text stating no matching order was found.",
+"A JSON-RPC protocol error, since the requested resource does not exist.",
+"<code>isError: true</code> with category <code>transient</code> and <code>isRetryable: true</code>, in case the record is still propagating."],
+a:1,
+e:"A query that ran successfully and found nothing is a valid empty result, not a failure. Marking it an error makes the agent retry and escalate over a customer who simply does not have that order — the single most tested distinction in this domain.",
+p:"Access failure and valid empty result are different outcomes.",
+k:"¿Un resultado vacío es un error?"},
+
+{s:0,o:"LOOP",d:2,
+q:"An engineer proposes ending the agentic loop when the model's text response contains a closing phrase such as \"let me know if there is anything else.\" What is wrong with this?",
+c:["Nothing, provided the phrase list is kept comprehensive and reviewed regularly.",
+"Loop termination is decided by <code>stop_reason</code>; parsing natural language for completion signals is unreliable and is the anti-pattern this design tests for.",
+"It works but wastes tokens, since the model must generate the closing phrase before the loop can end.",
+"It is acceptable only when combined with a hard iteration cap as a secondary safeguard."],
+a:1,
+e:"<code>stop_reason</code> is the structural signal for whether to continue tool execution or return a final response. Natural-language parsing and iteration caps as a primary stopping mechanism are both listed anti-patterns.",
+p:"Terminate on stop_reason, never on parsed prose.",
+k:"¿Qué señal decide el fin del bucle agéntico?"},
+
+/* ---------- SCENARIO 1 · MULTI-AGENT RESEARCH ---------- */
+{s:1,o:"SUBAG",d:2,
+q:"The analyse subagent produces conclusions that ignore constraints the coordinator established with the user at the start of the session. Coordinator logs confirm the constraints were discussed. What is the cause?",
+c:["The analyse subagent's model tier is too low to retain long instructions.",
+"Subagents do not inherit the coordinator's conversation history; every constraint must be passed explicitly in the subagent's prompt.",
+"The coordinator is summarising the constraints before delegation and losing detail.",
+"Subagent context expires between invocations and must be refreshed with a keep-alive call."],
+a:1,
+e:"The most commonly misunderstood point in this domain: subagents share no memory with the coordinator and inherit no conversation history. Anything they need must be in their prompt.",
+p:"Subagents inherit nothing; pass context explicitly.",
+k:"¿Heredan los subagentes el contexto del coordinador?"},
+
+{s:1,o:"SUBAG",d:3,
+q:"The synthesise subagent needs a clarification about a source the search subagent found. An engineer proposes letting synthesise call search directly to resolve it. What is the correct architecture?",
+c:["Allow the direct call but log it through the coordinator for observability.",
+"Route the request through the coordinator, which decides whether to re-dispatch search — in hub-and-spoke orchestration subagents never communicate directly.",
+"Give both subagents a shared scratchpad file they can read and write concurrently to exchange clarifications.",
+"Merge search and synthesise into a single subagent so the clarification never crosses a boundary."],
+a:1,
+e:"All communication routes through the coordinator. Direct peer calls blur responsibility boundaries and make failures untraceable; a shared concurrent scratchpad (C) additionally invites overwrites.",
+p:"Hub and spoke: everything routes through the coordinator.",
+k:"¿Pueden los subagentes hablarse entre sí?"},
+
+{s:1,o:"SUBAG",d:3,
+q:"A research query needs four independent literature searches. The coordinator currently dispatches them one at a time, waiting for each result before issuing the next. Latency is unacceptable. What is the fix?",
+c:["Emit multiple Task tool calls in a single coordinator response so the subagents run in parallel.",
+"Increase the subagent spawn depth so each search subagent can start the next one.",
+"Replace the four searches with one subagent given a combined query covering all four topics.",
+"Move the searches to the Message Batches API and collect results when the batch completes."],
+a:0,
+e:"Parallel fan-out is achieved by emitting several Task calls in one response. Option B confuses depth with breadth, C sacrifices the independence that made the decomposition correct, and D adds latency rather than removing it.",
+p:"Parallel subagents = multiple Task calls in a single response.",
+k:"¿Cómo se lanzan subagentes en paralelo?"},
+
+{s:1,o:"DECOMP",d:3,
+q:"A final report is internally consistent and well written, but analysts notice an entire regulatory topic area is missing. Logs show every subagent completed successfully and returned comprehensive results for the tasks it was given. Where is the failure?",
+c:["In the synthesise subagent, which dropped the topic while condensing the inputs.",
+"In the search subagent, whose queries were too narrow to surface the regulatory sources.",
+"In the coordinator's decomposition: a topic no subtask covered can never appear in the output, regardless of subagent quality.",
+"In the report subagent's template, which lacks a section for regulatory content."],
+a:2,
+e:"Trace failures to root cause. When whole topic areas are absent and every subagent succeeded at its assigned task, the task set itself was incomplete — that is a coordinator decomposition failure, not a subagent failure.",
+p:"Missing topic areas are a decomposition failure, not a subagent failure.",
+k:"¿De quién es la culpa cuando falta un tema entero del reporte?"},
+
+{s:1,o:"DECOMP",d:2,
+q:"The coordinator currently runs a fixed five-step plan for every query. On a query where the first search reveals the topic splits into three regulatory regimes, the plan proceeds unchanged and the report conflates them. What should change?",
+c:["Extend the fixed plan to seven steps so the common branches are pre-covered.",
+"Generate subtasks dynamically, letting the plan adapt as intermediate findings reveal structure the initial query did not expose.",
+"Run the fixed plan three times, once per regime, and concatenate the outputs.",
+"Ask the user to specify the regimes before the research begins."],
+a:1,
+e:"Dynamic decomposition means new subtasks are generated as information is discovered, rather than executing a fixed sequence regardless of intermediate findings. A longer fixed plan is still a fixed plan.",
+p:"Let findings reshape the task set, not just lengthen it.",
+k:"¿Plan fijo o descomposición dinámica?"},
+
+{s:1,o:"ERRPROP",d:2,
+q:"The search subagent completes three of five source queries; two time out after retries. What should it return to the coordinator?",
+c:["An error indicating the search step failed, so the coordinator can restart it cleanly.",
+"The three successful results only, so downstream synthesis is not disturbed by partial data.",
+"The three results plus the failure type, what was attempted, and which sources remain uncovered.",
+"Nothing until all five succeed, retrying in the background until the timeouts clear."],
+a:2,
+e:"Error propagation carries failure type, actions attempted, partial results, and alternatives. Returning results without the gap (B) is silent suppression — the coordinator then reports on five sources' worth of confidence with three sources' worth of evidence.",
+p:"Propagate partial results together with what failed and what was tried.",
+k:"¿Qué se propaga hacia arriba cuando una parte falla?"},
+
+{s:1,o:"ERRPROP",d:3,
+q:"One of four parallel analyse subagents crashes on a malformed source document. The current handler aborts the whole research run. Analysts say a report covering three of four areas, clearly labelled, is far more useful than no report. What is the correct behaviour?",
+c:["Abort the run — a partial report risks analysts making decisions on incomplete evidence.",
+"Recover locally where possible, continue the remaining branches, and deliver the report annotating which area failed and why.",
+"Silently drop the failed branch and deliver the report on the three completed areas.",
+"Retry the failed subagent until it succeeds, holding the other three results in memory."],
+a:1,
+e:"Terminating a whole pipeline over one failure is a listed anti-pattern, and so is silent suppression. The correct pattern recovers locally, continues, and makes the gap explicit so the reader can calibrate.",
+p:"One failed branch never terminates the pipeline; annotate and continue.",
+k:"¿Se aborta todo el pipeline por un subagente caído?"},
+
+{s:1,o:"CTX",d:2,
+q:"Four subagents investigate different sectors concurrently and record findings as they go. Findings from later subagents are overwriting earlier ones before the coordinator aggregates. What scratchpad convention fixes this?",
+c:["Have every subagent append to one shared scratchpad file, with a timestamp on each entry.",
+"Give each subagent its own uniquely named scratchpad file, which the coordinator aggregates afterwards.",
+"Have subagents hold findings in context and report them only in their final response.",
+"Have each subagent overwrite the shared file only after checking it has not changed since its last read."],
+a:1,
+e:"One file per subagent, aggregated by the coordinator. A shared file under concurrent writes loses data regardless of timestamps, and holding everything in context (C) discards the durability that motivated a scratchpad.",
+p:"One uniquely named scratchpad per subagent.",
+k:"¿Cómo evitar que los subagentes se pisen los hallazgos?"},
+
+{s:1,o:"CTX",d:3,
+q:"An architect wants each analyse subagent to spawn its own sub-subagents to break large sectors into sub-sectors, several levels deep. What governs whether this works?",
+c:["Nesting is unlimited as long as each subagent has the Agent tool in its allowed tools list.",
+"No subagent may ever spawn another; only the top-level coordinator can create subagents.",
+"Nesting is allowed to a configurable depth — three levels below the main conversation by default — beyond which the subagent is simply not given the Agent tool.",
+"Nesting stops automatically after the second level unless the subagent runs on a higher model tier."],
+a:2,
+e:"Nested subagents are permitted to a bounded, configurable depth with a default of three. Option B was true for most of 2026 and is the trap for anyone studying older material. Note the failure mode: at the limit the Agent tool is simply absent — no error is raised.",
+p:"Bounded and configurable, not unlimited and not forbidden.",
+k:"¿Hasta qué profundidad pueden anidarse los subagentes?"},
+
+{s:1,o:"TOOLDESC",d:2,
+q:"Every subagent is currently given all eighteen tools available to the system, for flexibility. Tool selection accuracy has degraded across all roles. What is the correct change?",
+c:["Keep all tools available but rank them by relevance in each subagent's prompt.",
+"Scope each subagent to the four or five tools its role actually needs.",
+"Consolidate the eighteen tools into six broader tools with more parameters.",
+"Add a routing classifier that pre-selects the candidate tool set per invocation."],
+a:1,
+e:"Each agent should hold only the tools its role requires; giving one agent eighteen degrades selection reliability and blurs responsibility. A synthesis agent has no business holding web search.",
+p:"Scope tools to agent roles — four or five each.",
+k:"¿Todos los subagentes deben tener todas las herramientas?"},
+
+{s:1,o:"FEEDBACK",d:3,
+q:"Analysts reject about one report in five and write a short note explaining why. The notes are stored with the report record. Report quality has not moved in two quarters. What is missing?",
+c:["A larger review panel, so more reports are checked before delivery.",
+"Structured metadata on each rejection — which section, which failure mode, which query type — aggregated to drive changes to the coordinator's decomposition and the subagent prompts.",
+"Fine-tuning on the corpus of accepted reports so the system learns the house style.",
+"An automatic re-run of every rejected report with a stricter synthesis prompt."],
+a:1,
+e:"Free-text notes attached to individual records correct instances without ever revealing patterns. A real feedback loop captures structured metadata and aggregates until a signal emerges that can change the prompt, the schema, or the decomposition.",
+p:"Instrument errors as data, not as prose attached to one record.",
+k:"¿Por qué no mejora el sistema si ya se corrigen los errores?"}
+];
+
+const BANK_B = [
+/* ---------- SCENARIO 2 · CODE GENERATION ---------- */
+{s:2,o:"CLAUDEMD",d:3,
+q:"An engineer launches Claude Code from <code>services/payments/</code>. The repo has a CLAUDE.md at the root, one at <code>services/payments/CLAUDE.md</code>, and one at <code>services/payments/ledger/CLAUDE.md</code>. No file in <code>ledger/</code> has been opened yet. What is loaded at session start?",
+c:["The root file only; both others wait until Claude reads a file in their directory.",
+"The root file and <code>services/payments/CLAUDE.md</code>; the <code>ledger/</code> file loads when Claude reads a file there.",
+"Only <code>services/payments/CLAUDE.md</code>, since the nearest file overrides ancestors.",
+"All three, because Claude Code preloads every CLAUDE.md beneath the repository root."],
+a:1,
+e:"Files in the working directory and above it load in full at launch; files in subdirectories load on demand. The trap is forgetting that the launch directory <em>is</em> the working directory, so its file is not a subdirectory file.",
+p:"Ancestors and cwd at launch; below the cwd on demand.",
+k:"¿Qué CLAUDE.md carga al lanzar desde un subdirectorio?"},
+
+{s:2,o:"CLAUDEMD",d:2,
+q:"A senior engineer keeps the team's commit-message conventions and review checklist in <code>~/.claude/CLAUDE.md</code>. New hires consistently ignore both. What is the problem?",
+c:["The file is too long, so the conventions compete for attention with personal preferences.",
+"User-level configuration lives only on that engineer's machine; team standards belong in project-level configuration committed to the repository.",
+"User-level files load after project-level files and are therefore overridden.",
+"Conventions of this kind belong in a skill rather than in any CLAUDE.md.",],
+a:1,
+e:"The user scope is personal and never shared — new team members simply never receive it. This is the distinction between someone who uses Claude Code and someone who has configured it for a team.",
+p:"Team standards go in project config, under version control.",
+k:"¿Por qué los nuevos no reciben los estándares del equipo?"},
+
+{s:2,o:"CONFIGMECH",d:3,
+q:"Test-writing conventions must apply to every <code>*.test.ts</code> file across roughly forty packages, wherever they sit in the monorepo. Which mechanism fits?",
+c:["A CLAUDE.md in each package directory that contains tests.",
+"A rules file in <code>.claude/rules/</code> with a <code>paths</code> glob frontmatter matching the test files.",
+"A skill invoked manually whenever an engineer starts writing tests.",
+"A section in the root CLAUDE.md describing the conventions for all test files."],
+a:1,
+e:"Directory-level CLAUDE.md is location-bound; path-scoped rules apply across the whole codebase wherever the glob matches. Forty copies (A) is unmaintainable, and the root file (D) loads the conventions into every session regardless of relevance.",
+p:"Conventions that span directories = path-scoped rules, not directory CLAUDE.md.",
+k:"¿Regla que cruza muchos directorios: dónde va?"},
+
+{s:2,o:"CONFIGMECH",d:3,m:true,
+q:"Which two statements about Claude Code configuration loading are correct? (Select two.)",
+c:["A rules file in <code>.claude/rules/</code> with no <code>paths</code> frontmatter loads at session start, at the same priority as <code>.claude/CLAUDE.md</code>.",
+"Skills load at session start alongside CLAUDE.md so their instructions are always available.",
+"A rules file with a <code>paths</code> glob is evaluated on every tool call, whether or not a matching file is involved.",
+"CLAUDE.md files discovered at multiple levels are concatenated rather than overriding one another."],
+a:[0,3],
+e:"Rules without <code>paths</code> are unconditional and load at launch; discovered CLAUDE.md files concatenate, with the ones nearest the working directory read last. Skills load on invocation, and path-scoped rules fire when a matching file is read — not on every tool call.",
+p:"Concatenation, not override; rules without paths are unconditional.",
+k:"¿Cómo se combinan los archivos de configuración?"},
+
+{s:2,o:"ENFPLACE",d:3,
+q:"The payments service forbids any edit to <code>services/payments/ledger/</code> without an accompanying migration file. This has been documented in the payments CLAUDE.md for two months; three violations reached review in that period. What is the correct restructuring?",
+c:["Convert the instruction into a path-scoped rule so it loads whenever a ledger file is read.",
+"Add a <code>PreToolUse</code> hook that denies Edit and Write on that path unless a migration file is present in the changeset.",
+"Move the instruction into a skill that engineers invoke before touching ledger code.",
+"Add the requirement to the pull-request template so reviewers catch it."],
+a:1,
+e:"A rule with a violation rate and a real consequence needs deterministic enforcement. Option A improves targeting but remains an instruction; C depends on the engineer remembering; D catches violations after the work is done rather than preventing them.",
+p:"A documented rule that keeps getting violated is a rule in the wrong mechanism.",
+k:"¿Instrucción mejor dirigida o enforcement determinista?"},
+
+{s:2,o:"POSTHOOK",d:2,
+q:"The standard requires every edited Python file to be formatted with <code>black</code> and to pass <code>ruff</code>. CLAUDE.md says so. In practice it happens about 70% of the time. What is the fix?",
+c:["Move the instruction to <code>.claude/rules/</code> with a <code>paths</code> pattern for <code>.py</code> files.",
+"Repeat the instruction in both the project and the user CLAUDE.md.",
+"Create a custom slash command the developer runs at the end of the session.",
+"Configure a <code>PostToolUse</code> hook matching Edit and Write that runs <code>black</code> and <code>ruff</code> on the edited file after every edit."],
+a:3,
+e:"Seventy percent compliance is the signature of a mechanical constraint left to instruction-following. PostToolUse fires after the tool ran, deterministically, without depending on the model remembering.",
+p:"Partial compliance with a mechanical rule means a hook is missing.",
+k:"¿Qué mecanismo garantiza el formateo tras cada edición?"},
+
+{s:2,o:"POSTHOOK",d:3,
+q:"An engineer configures a <code>PostToolUse</code> hook that runs the full test suite after every file edit. Sessions become unusably slow. What is the right adjustment?",
+c:["Move the test run to a <code>PreToolUse</code> hook so it executes before the edit instead.",
+"Keep the hook but scope it to fast checks — formatting and linting on the edited file — and leave the full suite to the CI pipeline.",
+"Remove the hook and add an instruction to CLAUDE.md asking Claude to run tests when it judges them relevant.",
+"Keep the hook and raise the session timeout so the suite has time to finish."],
+a:1,
+e:"PostToolUse is the right mechanism for per-edit quality constraints, but the constraint must be proportionate to per-edit frequency. Full-suite verification belongs at the pipeline boundary, not after every write.",
+p:"Per-edit hooks carry per-edit-sized work.",
+k:"¿Qué tan pesado puede ser un hook por edición?"},
+
+{s:2,o:"PLANMODE",d:2,
+q:"An engineer must migrate authentication across eleven services with interdependencies that are not fully documented. Which approach fits?",
+c:["Direct execution, starting with the smallest service to establish a working pattern.",
+"Plan mode, so the approach is explored and reviewed before any file is modified.",
+"Direct execution with a PostToolUse hook that runs the test suite after each service.",
+"Plan mode for the first service, then direct execution for the remaining ten."],
+a:1,
+e:"Plan mode is for multi-file migrations, architectural decisions, and any task where the correct approach needs exploring before committing. Undocumented interdependencies are exactly the architectural uncertainty it exists for.",
+p:"Explore before committing when scope is wide and reversal is expensive.",
+k:"¿Plan mode o ejecución directa?"},
+
+{s:2,o:"SLASH",d:2,
+q:"You build a slash command that generates a service scaffold following your team's structure. Every engineer should get it, and it should stay in sync as the structure evolves. Where does it belong?",
+c:["In <code>~/.claude/commands/</code> on each engineer's machine, distributed via the onboarding script.",
+"In the project's <code>.claude/commands/</code> directory, committed to the repository.",
+"In a skill, since scaffolding is a multi-step procedure rather than a single command.",
+"In the root CLAUDE.md as a documented procedure engineers can ask Claude to follow."],
+a:1,
+e:"Project-level placement makes it available to everyone and versioned with the code it scaffolds. The user directory (A) reintroduces the drift problem the question is asking you to avoid.",
+p:"Shared and versioned = project scope.",
+k:"¿Dónde va un comando que todo el equipo debe tener?"},
+
+{s:2,o:"SLASH",d:3,
+q:"A skill runs a dependency audit that produces several hundred lines of tool output. Engineers complain that after running it, Claude loses track of the refactor they were working on. What should the skill declare?",
+c:["A shorter output format, truncating the audit to its summary lines.",
+"<code>context: fork</code>, so the skill runs in an isolated subagent context and its verbose output stays out of the main conversation window.",
+"<code>allowed-tools</code> restricted to read-only tools, reducing what the audit can produce.",
+"A <code>PostToolUse</code> hook that clears the audit output from context once the skill completes."],
+a:1,
+e:"Skills declaring <code>context: fork</code> execute in an isolated sub-agent context, keeping verbose output out of the main window. Truncation (A) loses information the audit exists to produce.",
+p:"Verbose skills fork their context.",
+k:"¿Cómo evitar que una skill ruidosa contamine el contexto?"},
+
+{s:2,o:"ITER",d:3,
+q:"Generated code passes tests but reviewers keep rejecting it for the same handful of style and structure problems. The root CLAUDE.md already carries a 900-word coding standards section. What is the most effective next step?",
+c:["Expand the standards section to address each rejected pattern explicitly.",
+"Group the rejections into their recurring classes and add two to four concrete before-and-after examples showing the preferred structure.",
+"Add a PostToolUse hook that rejects any edit not matching the standards.",
+"Have a second Claude instance review each output against the standards before the engineer sees it."],
+a:1,
+e:"When lengthy instructions have already produced inconsistent results, more instructions have diminishing returns. Concrete input-output examples anchor behaviour far more reliably — and the failures must be consolidated into classes first, not handled one at a time.",
+p:"Concrete examples over more instructions; grouped classes over individual fixes.",
+k:"¿Más instrucciones o ejemplos concretos?"},
+
+/* ---------- SCENARIO 3 · CI/CD ---------- */
+{s:3,o:"CI",d:2,
+q:"The pre-merge review job hangs indefinitely and is killed by the runner timeout. The same command works on a developer laptop. What is the cause?",
+c:["The CI runner lacks a TTY, so Claude Code cannot render its interface and blocks.",
+"The command omits the <code>-p</code> flag, so Claude Code starts an interactive session and waits on stdin for input that never arrives.",
+"The repository CLAUDE.md is too large for the runner's memory limit.",
+"The job is missing an API key and is blocking on an authentication prompt."],
+a:1,
+e:"The <code>-p</code> (print) flag is mandatory for non-interactive pipelines: take the prompt, print to stdout, exit. Without it the process waits for input that a pipeline never supplies.",
+p:"Non-interactive means -p.",
+k:"¿Por qué se cuelga Claude Code en el pipeline?"},
+
+{s:3,o:"BATCH",d:3,m:true,
+q:"Two jobs are being designed. Which two statements correctly assign them? (Select two.)",
+c:["The pre-merge review that developers wait on should use the synchronous Messages API.",
+"The pre-merge review should use the Message Batches API to reduce cost per pull request.",
+"The nightly release-notes generation is a good fit for the Message Batches API.",
+"The nightly release-notes generation must stay synchronous so failures surface immediately."],
+a:[0,2],
+e:"The Batch API is for latency-tolerant work: overnight reports, nightly audits. A blocking pre-merge check that a human is waiting on must stay synchronous, whatever the cost saving.",
+p:"Batch for latency-tolerant; synchronous for anything a human waits on.",
+k:"¿Cuál trabajo va a batch y cuál síncrono?"},
+
+{s:3,o:"ITER",d:2,
+q:"The review job flags too many non-issues. The prompt currently instructs Claude to \"be conservative and only report high-confidence findings.\" Reviewers are starting to ignore the gate. What is the fix?",
+c:["Add a numeric confidence threshold and drop findings below it.",
+"Replace the vague instruction with categorical criteria defining exactly which conditions to flag, such as behaviour that contradicts what the code actually does.",
+"Reduce the number of findings reported per pull request to the top three by severity.",
+"Run the review twice and report only findings that appear in both runs."],
+a:1,
+e:"Vague confidence language does not reduce false positives; explicit categorical criteria do. Self-reported confidence thresholds (A) rest on a signal the model cannot calibrate, and C and D hide findings rather than improving them.",
+p:"Categorical criteria beat confidence language.",
+k:"¿Cómo se reducen los falsos positivos de verdad?"},
+
+{s:3,o:"ITER",d:3,
+q:"Forty false-positive findings were collected over a sprint. How should they be fed back into the review prompt?",
+c:["Submit each one individually as a correction so the model adjusts case by case.",
+"Group them into recurring failure classes and write a consolidated issue description with a few worked examples per class.",
+"Append all forty as a list of things not to flag.",
+"Discard them and rewrite the review prompt from scratch with tighter language."],
+a:1,
+e:"Batched issue descriptions for consolidated evaluation, expressed as concrete examples. Individual corrections (A) never reveal the pattern, and a forty-item exclusion list (C) is instruction bloat that will not generalise.",
+p:"Consolidate failures into classes, then exemplify.",
+k:"¿Se corrigen las fallas una por una o agrupadas?"},
+
+{s:3,o:"STRUCTOUT",d:2,
+q:"The merge gate parses the review job's output to decide pass or fail. It intermittently breaks when Claude wraps its JSON in explanatory prose. What is the most reliable fix?",
+c:["Prefill the assistant response with an opening brace so generation starts inside the JSON.",
+"Instruct the model more firmly to return only JSON with no surrounding text.",
+"Define the finding structure as a tool with a JSON schema and set <code>tool_choice</code> to force that tool's invocation.",
+"Post-process the output with a regular expression that extracts the first JSON object."],
+a:2,
+e:"Tool use with a JSON schema plus a forced <code>tool_choice</code> guarantees both the shape and the invocation. Prefill and prompt instructions raise the odds; extraction by regex treats the symptom.",
+p:"Guaranteed structure comes from tool use with a schema, not from asking.",
+k:"¿Cómo se garantiza salida estructurada en un pipeline?"},
+
+{s:3,o:"STRUCTOUT",d:3,
+q:"After moving to tool use with a strict JSON schema, the gate no longer crashes — but it has twice failed a pull request over a finding that referenced a function which does not exist in the diff. What does this tell you?",
+c:["The schema is under-specified and needs stricter field types.",
+"Schemas eliminate syntax errors but not semantic ones; a valid document can still contain fabricated values, so the pipeline needs verification beyond schema validation.",
+"The <code>tool_choice</code> setting is allowing the model to return conversational text alongside the tool call.",
+"The temperature is too high for a structured extraction task."],
+a:1,
+e:"Schema compliance guarantees shape, not truth. Wrong field values, mismatched sums and fabricated references all pass validation — assuming otherwise is a listed anti-pattern.",
+p:"Schemas prevent malformed output, not wrong output.",
+k:"¿Qué NO garantiza un esquema JSON?"},
+
+{s:3,o:"FEEDBACK",d:2,
+q:"Reviewers can override the gate with a one-click dismiss. Dismissals are counted in a dashboard but nothing else is recorded. What should be captured instead?",
+c:["The reviewer's identity, so patterns of over-dismissal can be addressed in training.",
+"The finding category, the file characteristics, and the reason class for the dismissal, aggregated to drive prompt and criteria revisions.",
+"The full diff of every dismissed pull request, for later manual analysis.",
+"A confidence score from the model for each dismissed finding, to calibrate the threshold."],
+a:1,
+e:"A count tells you the rate but never the cause. Structured metadata about each override is what turns dismissals into changes to the flagging criteria.",
+p:"Capture why, not just how often.",
+k:"¿Qué metadatos convierten un rechazo en aprendizaje?"},
+
+{s:3,o:"ENFPLACE",d:3,
+q:"Policy says the pipeline must never push directly to <code>main</code>, no matter what a prompt or a repository file asks Claude Code to do. Where does this belong?",
+c:["In the CI job's CLAUDE.md, as an explicit prohibition.",
+"In a <code>permissions.deny</code> settings rule blocking the relevant command, which a hook returning allow cannot override.",
+"In a PostToolUse hook that reverts any push to <code>main</code> after it happens.",
+"In the system prompt appended to the job with <code>--append-system-prompt</code>."],
+a:1,
+e:"Settings deny rules are policy-level and cannot be loosened by a hook returning allow — hooks may tighten policy, never relax it. That property is exactly what \"no matter what a prompt or repository file asks\" is testing.",
+p:"Hooks can tighten policy; only settings can set the floor.",
+k:"¿Qué mecanismo no puede ser anulado por un hook?"},
+
+{s:3,o:"HOOKS",d:3,
+q:"Two hooks fire on the same tool call. One returns <code>allow</code>, another returns <code>deny</code>, and a third returns <code>ask</code>. What happens?",
+c:["The first hook to return wins, so the outcome depends on execution order.",
+"The call is denied — precedence runs deny, then defer, then ask, then allow.",
+"The user is prompted, since <code>ask</code> is the safe middle outcome when hooks disagree.",
+"The call is allowed, because an explicit allow from any hook satisfies the permission check."],
+a:1,
+e:"Precedence is deterministic and order-independent: deny beats defer beats ask beats allow. The whole point is that a permissive hook can never override a restrictive one.",
+p:"deny > defer > ask > allow.",
+k:"¿Qué gana cuando dos hooks se contradicen?"},
+
+/* ---------- SCENARIO 4 · STRUCTURED EXTRACTION ---------- */
+{s:4,o:"SCHEMA",d:2,
+q:"Claude invents <code>due_date</code> values when an invoice prints none, typically computing thirty days from <code>issue_date</code>. The field is <code>required</code> and typed as a string. What is the fix?",
+c:["Add a prompt instruction not to guess dates that do not appear in the document.",
+"Remove <code>due_date</code> from the schema and compute it downstream.",
+"Define the default as <code>issue_date + 30 days</code>, the common commercial convention.",
+"Make <code>due_date</code> nullable and state that <code>null</code> means the value is absent from the source."],
+a:3,
+e:"A required non-nullable field leaves exactly one way out when the data does not exist: fabricate it. The schema is manufacturing the hallucination, so a prose instruction fights the structure instead of fixing it.",
+p:"If the source may omit it, the schema must be able to say so.",
+k:"¿Por qué inventa el modelo un campo requerido?"},
+
+{s:4,o:"SCHEMA",d:3,
+q:"<code>currency</code> is an enum of USD, EUR and GBP. Canadian vendors now invoice in CAD, and some invoices print no currency at all. In both cases Claude emits USD. What is the best schema change?",
+c:["Extend the enum with the currencies actually observed and make the field nullable, so an absent value is representable distinctly from a guessed one.",
+"Change <code>currency</code> to a free-text string so any code found can be written.",
+"Include all ISO 4217 codes in the enum to cover future currencies.",
+"Keep the schema and add post-processing that infers currency from the vendor's country."],
+a:0,
+e:"Two distinct failures are mixed: a value present but outside the enum, and a value absent. Extending the enum fixes the first; nullability fixes the second. Option C covers CAD but still leaves no valid way to say \"not printed\".",
+p:"Unexpected value and missing value need different remedies.",
+k:"¿Valor fuera del enum o valor ausente? Son dos fallas."},
+
+{s:4,o:"SCHEMA",d:3,m:true,
+q:"Invoices sometimes list a discount that applies to the whole invoice, sometimes per line, and sometimes not at all. Which two schema decisions represent this correctly? (Select two.)",
+c:["Make the invoice-level <code>discount</code> field nullable so its absence is distinguishable from a zero discount.",
+"Give every line item a required <code>discount</code> field defaulting to zero when none is printed.",
+"Add an enum <code>discount_scope</code> with members for invoice-level, line-level and none, so the model states which pattern the document uses.",
+"Compute the invoice-level discount downstream by summing the line-level values."],
+a:[0,2],
+e:"A nullable field separates \"no discount printed\" from \"a printed discount of zero\", and an explicit scope enum lets the model report the document's structure rather than guessing which pattern applies. Option B destroys that distinction by defaulting, and D assumes a relationship the documents do not guarantee.",
+p:"Represent absence and structure explicitly rather than defaulting them away.",
+k:"¿Cómo representar «ausente» frente a «cero»?"},
+
+{s:4,o:"EXTRACT",d:2,
+q:"Dates arrive as 03/04/2026, 4 March 2026, and 2026-03-04 depending on vendor. Downstream reconciliation breaks on the ambiguous numeric form. What belongs in the extraction design?",
+c:["A post-processing date parser that tries several formats in order until one succeeds.",
+"An explicit format normalisation instruction in the schema and prompt requiring ISO 8601 output, with few-shot examples covering the ambiguous numeric case.",
+"A rule instructing the model to prefer the day-first interpretation, which is the more common international convention.",
+"A nullable date field, so ambiguous dates can be left empty for human review."],
+a:1,
+e:"Format normalisation instructions plus targeted few-shot examples are the pattern for varied document formats. A downstream parser (A) inherits the same ambiguity, and a blanket day-first rule (C) silently corrupts the vendors who write month-first.",
+p:"Normalise at extraction time with examples for the ambiguous cases.",
+k:"¿Dónde se normaliza el formato de fecha?"},
+
+{s:4,o:"EXTRACT",d:3,
+q:"Line-item extraction is inconsistent across vendor layouts. The prompt already contains roughly 400 words of instructions about interpreting tables. Reviewers logged 40 individual failures last month. What is the most effective next step?",
+c:["Add more explicit instructions, one per vendor layout observed.",
+"Group the failures into recurring classes and add two to four concrete input-output examples covering the ambiguous cases.",
+"Send each of the 40 failures back individually so the model adjusts case by case.",
+"Split the work into one extraction call per line on the invoice."],
+a:1,
+e:"Adding instructions to a prompt whose instructions already failed is doing more of what did not work. Consolidate the failures into classes, then express the correction as concrete examples.",
+p:"Concrete examples over detailed instructions; batched failures over individual corrections.",
+k:"¿Cuál es el siguiente paso tras 40 fallas registradas?"},
+
+{s:4,o:"FEEDBACK",d:2,
+q:"Reviewers correct faulty extractions in a UI and the correction is saved to the final record, which continues to accounts payable. Accuracy has not improved in three months. What is missing?",
+c:["More review capacity, since error volume exceeds what the team can process.",
+"Fine-tuning on the corrected records accumulated over the three months.",
+"Structured metadata for each correction — field affected, error type, document characteristics — aggregated into revisions of the prompt, schema and examples.",
+"A higher confidence threshold for automatic approval so more extractions get reviewed."],
+a:2,
+e:"The system corrects instances but never learns patterns; the correction dies in the record. Aggregated metadata is what surfaces an actionable signal such as \"most total errors occur on invoices with line-level discounts\".",
+p:"Instrument the error so you can fix the cause, not just the record.",
+k:"¿Por qué no mejora la precisión si ya se corrige todo?"},
+
+{s:4,o:"ROUTING",d:2,
+q:"The review queue currently samples 10% of extractions at random. Errors still reach accounts payable. How should routing be redesigned?",
+c:["Raise the random sample to 25% until the error rate falls.",
+"Route by signal: extractions with nullable fields left empty, unfamiliar vendor layouts, and totals that do not reconcile against line items.",
+"Route every extraction above a monetary threshold, since large invoices carry the most risk.",
+"Route the extractions the model reports lowest confidence on."],
+a:1,
+e:"Review routing should follow document characteristics and field-level ambiguity rather than random sampling. Option C is a reasonable secondary filter but ignores where errors actually occur, and D relies on self-reported confidence.",
+p:"Route on ambiguity signals, not on random sampling or self-reported confidence.",
+k:"¿Cómo se elige qué extracción revisa un humano?"},
+
+{s:4,o:"ROUTING",d:3,
+q:"An engineer proposes having the model output a <code>confidence</code> score per field and routing anything below 0.8 to review. What is the flaw?",
+c:["The threshold is too high and will overwhelm the limited review capacity.",
+"Self-reported confidence is not a reliable signal; routing should rest on observable characteristics such as field ambiguity, layout novelty, and internal consistency checks.",
+"Confidence scores are only valid when the model is given the schema in advance.",
+"There is no flaw, provided the threshold is calibrated against reviewer outcomes over time."],
+a:1,
+e:"Model self-reported confidence is explicitly listed as an unreliable trigger, in review routing exactly as in escalation. Observable properties of the document and of the extraction are what should drive the decision.",
+p:"Self-reported confidence is not evidence.",
+k:"¿Es confiable el score de confianza del propio modelo?"},
+
+{s:4,o:"CTX",d:3,
+q:"A monthly batch arrives as a 900-page bundle that far exceeds the context window. Downstream needs one consolidated record set. What is the correct approach?",
+c:["Process it in one session with progressive summarisation of already-extracted content.",
+"Split into chunks, dispatch each to an isolated subagent that writes to its own uniquely named scratchpad, and have the coordinator aggregate.",
+"Have all subagents write to a single shared scratchpad as they discover records.",
+"Raise <code>max_tokens</code> and process the bundle in one call."],
+a:1,
+e:"Progressive summarisation corrupts transactional data, and <code>max_tokens</code> governs output rather than the input window. Between the scratchpad options, the difference is naming: a shared file under concurrent writes loses records.",
+p:"Subagent isolation plus one uniquely named scratchpad each.",
+k:"¿Cómo procesar un lote que excede la ventana de contexto?"},
+
+{s:4,o:"TOOLCHOICE",d:2,
+q:"The extraction service must never return a conversational reply — every response has to be a structured record, because the consumer has no branch for prose. Which configuration guarantees this?",
+c:["<code>tool_choice</code> set to <code>auto</code>, with a prompt instruction to always use the extraction tool.",
+"<code>tool_choice</code> forced to the named extraction tool, so a tool call is guaranteed.",
+"<code>tool_choice</code> set to <code>any</code>, with only the extraction tool defined.",
+"Either forcing the named tool, or <code>any</code> with a single tool defined — both guarantee invocation of that tool."],
+a:3,
+e:"<code>auto</code> permits a text response and therefore cannot guarantee anything. Forcing the named tool guarantees that specific tool; <code>any</code> guarantees some tool is called, which with exactly one tool defined is the same outcome. The question rewards knowing what each value actually promises.",
+p:"auto may return text; any guarantees a tool; a named choice guarantees which one.",
+k:"¿Qué garantiza cada valor de tool_choice?"},
+
+/* ---------- SCENARIO 5 · DEVELOPER PRODUCTIVITY ---------- */
+{s:5,o:"EXPLORE",d:2,
+q:"An engineer asks which services publish to a particular Kafka topic. The agent needs to find every file whose contents mention the topic name. Which tool applies?",
+c:["Glob, matching the topic name as a filename pattern across the repository.",
+"Grep, searching file contents for the topic name, then Read on the matches.",
+"Read on each service's entry point, following imports until the publisher is found.",
+"Glob to list all configuration files, then Read every one of them."],
+a:1,
+e:"Grep matches contents; Glob matches file names. Using Glob to search contents is a listed anti-pattern, and reading every configuration file burns the context window that the exploration strategy exists to protect.",
+p:"Grep for contents, Glob for names.",
+k:"¿Grep o Glob para buscar dentro de archivos?"},
+
+{s:5,o:"EXPLORE",d:3,
+q:"An engineer asks the agent to explain how a 200-file legacy service works. Reading every file would exceed the context window several times over. What is the correct strategy?",
+c:["Read the files in alphabetical order until the context window fills, then summarise what was covered.",
+"Build understanding incrementally: locate entry points and boundaries with Grep and Glob, read the files those point to, and expand only along the paths the question actually requires.",
+"Dispatch 200 subagents, one per file, and have the coordinator merge their summaries.",
+"Ask the engineer to narrow the question until it fits in a single file's worth of reading."],
+a:1,
+e:"Systematic exploration uses Grep, Glob and targeted Read to build incremental understanding while managing context. Exhaustive reading in either form — sequential (A) or fanned out (C) — ignores that most of the 200 files are irrelevant to the question asked.",
+p:"Targeted, incremental exploration beats exhaustive reading.",
+k:"¿Cómo explorar un servicio que no cabe en contexto?"},
+
+{s:5,o:"MCPSCOPE",d:2,
+q:"The Jira MCP server is used by the whole team; one engineer also runs an experimental local server for a tool they are prototyping. How should these be configured?",
+c:["Both at project scope, so configuration stays in one place and is reproducible.",
+"Jira at project scope in the committed configuration; the experimental server at user scope on that engineer's machine.",
+"Both at user scope, since MCP credentials are personal and should never be committed.",
+"Jira at user scope with an onboarding script that installs it, and the experimental server at project scope for team feedback."],
+a:1,
+e:"Project scope is for shared team tooling, user scope for personal or experimental configurations. Credentials are handled separately through environment variable expansion, which is why C's premise does not force user scope.",
+p:"Shared tooling is project scope; experiments are user scope.",
+k:"¿Qué servidor MCP va a qué alcance?"},
+
+{s:5,o:"MCPSCOPE",d:3,
+q:"The team wants Confluence access. An engineer proposes building a custom MCP server, estimating two weeks. What should happen first?",
+c:["Evaluate existing community MCP servers for Confluence, and build custom only for workflows they cannot handle.",
+"Build the custom server, since a team-owned implementation avoids third-party dependency risk.",
+"Skip MCP and have the agent call the Confluence REST API through a generic HTTP tool.",
+"Start with a read-only custom server and add write capability in a second phase."],
+a:0,
+e:"Evaluate community servers before building custom; build only for workflows community servers cannot cover. Two weeks of work to reproduce something that exists is the cost the question is asking you to see.",
+p:"Community servers first; custom only for the gap.",
+k:"¿Construir un servidor MCP propio o revisar los existentes?"},
+
+{s:5,o:"RESUME",d:2,
+q:"An engineer returns to a session from yesterday. Eleven files changed on the branch overnight. What is the correct resumption approach?",
+c:["Start a fresh session, since yesterday's understanding is no longer trustworthy.",
+"Resume and re-analyse the changed files specifically, injecting the prior findings that remain valid rather than repeating the whole exploration.",
+"Resume and re-read every file examined yesterday, to guarantee the picture is current.",
+"Resume and continue, relying on the agent to notice inconsistencies as it works."],
+a:1,
+e:"Session resumption is targeted re-analysis of what changed plus injection of still-valid context — restoring state accurately without repeating prior work. Options A and C both discard work needlessly; D leaves stale understanding in place.",
+p:"Re-analyse what changed; carry forward what did not.",
+k:"¿Cómo retomar una sesión con archivos modificados?"},
+
+{s:5,o:"STATELESS",d:2,
+q:"A junior engineer is surprised that the agent \"forgets\" earlier turns when they build a custom client against the API directly. What should they understand?",
+c:["The API keeps a server-side session that expires after a period of inactivity and must be refreshed.",
+"The API is stateless: the full conversation history must be included in every request, and state across turns is maintained by the client accumulating and resending the message list.",
+"Conversation state persists only when the same system prompt is sent with each request.",
+"History is retained automatically but truncated to the most recent turns unless extended explicitly."],
+a:1,
+e:"There is no server-side conversation. Each request carries the entire prior exchange, and maintaining multi-turn state is the client's responsibility.",
+p:"The API is stateless; the client carries the history.",
+k:"¿Guarda la API el historial entre turnos?"},
+
+{s:5,o:"CTX",d:3,
+q:"Exploring a large service, the agent's main context fills with file contents and it starts losing the architectural summary it built earlier. The engineer still needs that summary at the end. What is the right structure?",
+c:["Increase the frequency of summarisation so older file contents compress sooner.",
+"Delegate each module's exploration to a subagent that reads in its own isolated context and returns only its findings, keeping raw file contents out of the main window.",
+"Read files in smaller portions so each occupies less of the context window.",
+"Write the architectural summary to a file first, then continue reading and re-read the summary when needed."],
+a:1,
+e:"Subagent isolation exists precisely so that the bulk reading happens somewhere other than the main conversation. Option D is a reasonable complement but does nothing about the file contents that are causing the pressure.",
+p:"Push bulk reading into isolated subagent contexts.",
+k:"¿Cómo evitar que la lectura masiva desplace el resumen?"},
+
+{s:5,o:"CASEFACTS",d:3,
+q:"The agent receives a 60-page architecture document plus a specific question. Its answers are accurate about the opening and closing sections but consistently vague about the middle. What should change?",
+c:["Split the document into three requests and merge the answers.",
+"Place the key findings and the question at the beginning of the input rather than burying them, and lead the aggregated content with a headed summary of what matters.",
+"Increase the model's context window so the middle sections are no longer compressed.",
+"Ask the model to read the document twice, once forward and once in reverse order."],
+a:1,
+e:"The lost-in-the-middle effect is real: material buried in the centre of long inputs is attended to least. The remedy is structural placement — key summaries and findings at the beginning — not more context or more passes.",
+p:"Lead long inputs with what matters; the middle is where information dies.",
+k:"¿Por qué se pierde la información del medio de un documento largo?"},
+
+{s:5,o:"TOOLDESC",d:3,
+q:"The agent has both a <code>search_code</code> MCP tool and a <code>search_docs</code> MCP tool. It routinely calls <code>search_docs</code> for questions about implementation details. Descriptions read \"Searches the documentation\" and \"Searches the codebase.\" Which rewrite is most likely to fix the routing?",
+c:["Rename the tools to <code>search_confluence</code> and <code>search_repository</code> so the sources are unambiguous.",
+"State for each tool what it returns, the input format it expects, example questions it answers well, and an explicit line on when to prefer the other tool.",
+"Merge them into a single <code>search</code> tool with a <code>source</code> parameter the model sets.",
+"Reorder the tool list so <code>search_code</code> appears first."],
+a:1,
+e:"A strong description specifies purpose, input format, example queries, and explicit boundaries against similar tools. Renaming (A) helps marginally but leaves the boundary unstated, and ordering (D) is not a selection mechanism.",
+p:"Purpose, inputs, examples, and boundaries — all four.",
+k:"¿Qué debe contener una buena descripción de herramienta?"}
+];
+
+const BANK = BANK_A.concat(BANK_B);
+
+/* ============ CONFIG ============ */
+const CFG = {
+  len:  {v:20, opts:[[12,"quick pass"],[20,"a full block"],[30,"half exam"],[0,"everything available"]]},
+  diff: {v:"mix", opts:[["l2","level 2 only"],["mix","levels 2 and 3"],["l3","level 3 only"]]},
+  scope:{v:"four", opts:[["four","4 of 6, drawn at random"],["all","all six scenarios"]]},
+  focus:{v:"weak", opts:[["weak","weight my weak objectives"],["even","spread evenly"]]}
+};
+const LEN_LABEL = {12:"12 questions",20:"20 questions",30:"30 questions",0:"Everything"};
+const DIFF_LABEL = {l2:"Hard",mix:"Hard + Brutal",l3:"Brutal"};
+// objectives that came back 0% or partial on the real score report
+const WEAK = ["ORCH","ESCAL","ENFPLACE","POSTHOOK","SCHEMA","FEEDBACK","ITER","TOOLDESC","CTX","DECOMP","ROUTING","EXTRACT"];
+
+const $ = id => document.getElementById(id);
+function shuffle(a){ const r=a.slice(); for(let i=r.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
+
+function paintChoices(){
+  const map = [["cLen","len"],["cDiff","diff"],["cScope","scope"],["cFocus","focus"]];
+  map.forEach(([elId,key]) => {
+    const box = $(elId);
+    box.innerHTML = CFG[key].opts.map(([val,desc]) => {
+      const label = key==="len" ? (val===0?"All":String(val))
+                  : key==="diff" ? DIFF_LABEL[val]
+                  : val==="four" ? "4 of 6" : val==="all" ? "All 6"
+                  : val==="weak" ? "My weak areas" : "Even";
+      const on = CFG[key].v === val ? " on" : "";
+      return '<button class="ch'+on+'" data-v="'+val+'">'+label+'<small>'+desc+'</small></button>';
+    }).join('');
+    Array.from(box.children).forEach(b => b.addEventListener('click', () => {
+      let v = b.dataset.v;
+      if(key==="len") v = parseInt(v,10);
+      CFG[key].v = v; paintChoices(); paintBankLine();
+    }));
+  });
+}
+function poolFor(){
+  let pool = BANK.slice();
+  if(CFG.diff.v==="l2") pool = pool.filter(q => q.d === 2);
+  if(CFG.diff.v==="l3") pool = pool.filter(q => q.d === 3);
+  return pool;
+}
+function paintBankLine(){
+  const p = poolFor();
+  const multi = p.filter(q=>q.m).length;
+  $('bankLine').textContent = BANK.length + ' questions in the bank · ' + p.length +
+    ' match the current difficulty · ' + multi + ' multiple-response · ' +
+    Object.keys(OBJ).length + ' objectives · 6 scenarios';
+}
+
+/* ============ SESSION ============ */
+let SESSION = [], idx = 0, answers = [], fReview = [], fLang = [];
+let remaining = 0, total = 0, ticker = null, reviewFilter = 'all';
+
+function buildSession(){
+  const pool = poolFor();
+  const scenIds = CFG.scope.v === "four" ? shuffle([0,1,2,3,4,5]).slice(0,4) : shuffle([0,1,2,3,4,5]);
+  let avail = pool.filter(q => scenIds.includes(q.s));
+
+  let want = CFG.len.v === 0 ? avail.length : Math.min(CFG.len.v, avail.length);
+
+  // weight: draw weak-objective questions first when requested
+  let picked;
+  if(CFG.focus.v === "weak"){
+    const weak  = shuffle(avail.filter(q => WEAK.includes(q.o)));
+    const other = shuffle(avail.filter(q => !WEAK.includes(q.o)));
+    const weakTarget = Math.min(weak.length, Math.round(want * 0.7));
+    picked = weak.slice(0, weakTarget).concat(other.slice(0, want - weakTarget));
+    if(picked.length < want) picked = picked.concat(weak.slice(weakTarget, weakTarget + (want - picked.length)));
+  } else {
+    picked = shuffle(avail).slice(0, want);
+  }
+
+  // group into scenario blocks, blocks in random order, questions random within block
+  const order = scenIds.filter(s => picked.some(q => q.s === s));
+  SESSION = [];
+  order.forEach(s => shuffle(picked.filter(q => q.s === s)).forEach(q => SESSION.push(prep(q))));
+}
+
+function prep(q){
+  const n = q.c.length;
+  const perm = shuffle(Array.from({length:n}, (_,i)=>i));   // perm[newIndex] = oldIndex
+  const opts = perm.map(o => q.c[o]);
+  const back = {}; perm.forEach((old,neu) => back[old] = neu);
+  const ans = q.m ? q.a.map(o => back[o]).sort((x,y)=>x-y) : back[q.a];
+  return {...q, opts, ans};
+}
+
+function isCorrect(i){
+  const q = SESSION[i], a = answers[i];
+  if(a === null) return false;
+  if(q.m) return Array.isArray(a) && a.length === q.ans.length && a.every((v,k) => v === q.ans[k]);
+  return a === q.ans;
+}
+function answered(i){
+  const a = answers[i];
+  if(a === null) return false;
+  return SESSION[i].m ? a.length === SESSION[i].ans.length : true;
+}
+
+function startExam(){
+  buildSession();
+  idx = 0;
+  answers = SESSION.map(q => q.m ? [] : null);
+  fReview = new Array(SESSION.length).fill(false);
+  fLang   = new Array(SESSION.length).fill(false);
+  total = SESSION.length * 120;
+  remaining = total;
+  $('screenIntro').classList.add('hidden');
+  $('screenReport').classList.add('hidden');
+  $('screenExam').classList.remove('hidden');
+  $('chrome').classList.remove('hidden');
+  render();
+  clearInterval(ticker);
+  ticker = setInterval(tick, 1000);
+  window.scrollTo(0,0);
+}
+function tick(){ remaining--; paintTimer(); if(remaining<=0){ clearInterval(ticker); finish(); } }
+function paintTimer(){
+  const m = Math.floor(Math.max(remaining,0)/60), s = Math.max(remaining,0)%60;
+  const t = $('timer');
+  t.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  t.classList.toggle('low', remaining <= 120);
+}
+
+function render(){
+  const q = SESSION[idx], sc = SCENARIOS[q.s];
+  const blockIdx = SESSION.filter((x,i) => x.s === q.s && i <= idx).length;
+  const blockLen = SESSION.filter(x => x.s === q.s).length;
+  const blocks = [];
+  SESSION.forEach(x => { if(!blocks.includes(x.s)) blocks.push(x.s); });
+
+  $('scEyebrow').textContent = 'Scenario ' + (blocks.indexOf(q.s)+1) + ' of ' + blocks.length;
+  $('scTitle').textContent = sc.title;
+  $('scBody').innerHTML = sc.body;
+  $('scFacts').innerHTML = sc.facts.map(f => '<li>· '+f+'</li>').join('');
+  $('scNote').textContent = 'Question ' + blockIdx + ' of ' + blockLen + ' in this block.';
+
+  $('qNum').textContent = 'Question ' + (idx+1) + ' of ' + SESSION.length;
+  const db = $('dBadge');
+  db.textContent = q.d===3 ? 'Level 3' : q.d===2 ? 'Level 2' : 'Level 1';
+  db.className = 'dbadge d' + q.d;
+  $('chromeTitle').textContent = sc.title;
+  $('counter').textContent = (idx+1)+' / '+SESSION.length;
+  $('progressBar').style.width = (SESSION.filter((_,i)=>answered(i)).length / SESSION.length * 100) + '%';
+
+  const sn = $('selNote');
+  if(q.m){ sn.classList.remove('hidden'); sn.textContent = 'Select ' + (q.ans.length===2?'two':String(q.ans.length)); }
+  else sn.classList.add('hidden');
+
+  $('qStem').innerHTML = q.q;
+  const br = $('flagReview'), bl = $('flagLang');
+  br.classList.toggle('on-review', fReview[idx]); bl.classList.toggle('on-lang', fLang[idx]);
+  br.textContent = fReview[idx] ? '✓ Flagged: content' : 'Flag: content';
+  bl.textContent = fLang[idx]   ? '✓ Flagged: wording' : 'Flag: wording';
+
+  const L = ['A','B','C','D','E'];
+  const sel = i => q.m ? answers[idx].includes(i) : answers[idx] === i;
+  $('qOpts').innerHTML = q.opts.map((o,i) =>
+    '<button class="opt'+(q.m?' multi':'')+(sel(i)?' sel':'')+'" data-i="'+i+'">'+
+    '<span class="ltr">'+L[i]+'</span><span>'+o+'</span></button>').join('');
+  Array.from($('qOpts').children).forEach(b => b.addEventListener('click', () => {
+    const i = parseInt(b.dataset.i,10);
+    if(q.m){
+      const a = answers[idx];
+      const at = a.indexOf(i);
+      if(at >= 0) a.splice(at,1);
+      else { if(a.length >= q.ans.length) a.shift(); a.push(i); a.sort((x,y)=>x-y); }
+    } else answers[idx] = i;
+    render();
+  }));
+
+  $('prevBtn').disabled = idx === 0;
+  $('nextBtn').disabled = idx === SESSION.length - 1;
+
+  $('dots').innerHTML = SESSION.map((x,i) => {
+    const brk = i > 0 && SESSION[i-1].s !== x.s ? ' brk' : '';
+    const cls = ['dot', answered(i)?'answered':'', fReview[i]?'fReview':'', fLang[i]?'fLang':'', i===idx?'current':''].filter(Boolean).join(' ');
+    return '<button class="'+cls+brk+'" data-g="'+i+'">'+(i+1)+'</button>';
+  }).join('');
+  Array.from($('dots').children).forEach(d => d.addEventListener('click', () => { idx = parseInt(d.dataset.g,10); render(); }));
+  paintTimer();
+}
+
+/* ============ REPORT ============ */
+function finish(){
+  clearInterval(ticker);
+  const used = total - Math.max(remaining,0);
+
+  const byObj = new Map();
+  SESSION.forEach((q,i) => {
+    if(!byObj.has(q.o)) byObj.set(q.o, {tot:0, ok:0});
+    const r = byObj.get(q.o); r.tot++; if(isCorrect(i)) r.ok++;
+  });
+  const correct = SESSION.filter((_,i)=>isCorrect(i)).length;
+  const scaled = Math.round(100 + (correct/SESSION.length)*900);
+  const passed = scaled >= 720;
+  const blocks = []; SESSION.forEach(x => { if(!blocks.includes(x.s)) blocks.push(x.s); });
+
+  $('repMode').textContent = DIFF_LABEL[CFG.diff.v] + (CFG.focus.v==="weak" ? " · weighted" : "");
+  $('repDate').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  $('repN').textContent = SESSION.length;
+  $('repTime').textContent = Math.floor(used/60)+' min '+(used%60)+' s';
+  $('repScen').textContent = blocks.length + ' of 6';
+  $('repScore').textContent = 'YOUR SCORE: '+scaled+'  ('+correct+'/'+SESSION.length+')';
+  const g = $('repGrade'); g.textContent = 'GRADE: '+(passed?'Pass':'Fail');
+  g.className = passed ? 'grade-pass' : 'grade-fail';
+
+  const rows = Array.from(byObj.entries()).sort((a,b) => (a[1].ok/a[1].tot) - (b[1].ok/b[1].tot));
+  $('repBody').innerHTML = rows.map(([k,r]) => {
+    const pct = Math.round(r.ok/r.tot*100);
+    const cls = pct===0 ? 'p0' : pct===100 ? 'p100' : '';
+    return '<tr><td>'+OBJ[k]+'</td><td class="pct '+cls+'">'+pct+'%</td></tr>';
+  }).join('');
+
+  const flagged = SESSION.map((_,i) => (fReview[i]||fLang[i]) ? i : -1).filter(i=>i>=0);
+  if(!flagged.length){
+    $('flagSumBody').innerHTML = '<p class="empty">No questions flagged. Next run, flag as you go — the wording/content split cannot be reconstructed afterwards.</p>';
+  } else {
+    $('flagSumBody').innerHTML = '<table><thead><tr><th>Q</th><th>Why you flagged it</th><th style="text-align:right">Result</th></tr></thead><tbody>' +
+      flagged.map(i => {
+        const ok = isCorrect(i);
+        const pills = (fReview[i]?'<span class="pill content">content</span>':'') + (fLang[i]?'<span class="pill wording">wording</span>':'');
+        return '<tr><td class="qn">'+(i+1)+'</td><td>'+pills+'<span class="muted" style="font-size:12.5px">'+SCENARIOS[SESSION[i].s].title+'</span></td><td class="res '+(ok?'r':'w')+'">'+(ok?'Correct':'Incorrect')+'</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  const misses = SESSION.map((_,i)=>!isCorrect(i)?i:-1).filter(i=>i>=0);
+  const langAll = SESSION.map((_,i)=>fLang[i]?i:-1).filter(i=>i>=0);
+  const langMiss = misses.filter(i=>fLang[i]).length;
+  const langOk = langAll.length - langMiss;
+  const contentMiss = misses.filter(i=>fReview[i] && !fLang[i]).length;
+  const unflagged = misses.length - langMiss - contentMiss;
+  let big, msg;
+  if(!flagged.length){
+    big = 'No flags recorded';
+    msg = misses.length===0 ? 'Clean run with nothing flagged.'
+      : 'You missed '+misses.length+' without flagging any, so there is no way to tell whether the loss was reading or knowledge. An unflagged miss is the one error you cannot diagnose afterwards.';
+  } else if(!misses.length){
+    big = langAll.length + ' flagged, none missed';
+    msg = 'Friction, not a gap: the reading cost time but not points. Over 60 questions that friction compounds, so the hinge-word table is still worth a pass.';
+  } else {
+    big = langMiss + ' of ' + misses.length + ' misses flagged as wording';
+    const parts = [langMiss+' marked as wording', contentMiss+' as content'];
+    if(unflagged>0) parts.push(unflagged+' not flagged');
+    msg = 'Of your '+misses.length+' incorrect answers: '+parts.join(', ')+'. ';
+    if(langMiss > misses.length/2) msg += 'Language is carrying most of the loss — work the hinge-word table, then re-read each flagged stem against its key-ask line in the review.';
+    else if(langMiss === 0) msg += 'Language did not cost you points here. Treat these as knowledge gaps and go to the explanations.';
+    else msg += 'Language accounts for part of the loss but not most of it.';
+    if(langOk>0) msg += ' Separately, '+langOk+' flagged for wording you still answered correctly — time cost, not points.';
+    if(unflagged>0) msg += ' The unflagged misses deserve the most attention: confident and wrong is the hardest error to catch on exam day.';
+  }
+  $('diagBig').textContent = big; $('diagText').textContent = msg;
+
+  paintReview();
+  $('screenExam').classList.add('hidden');
+  $('chrome').classList.add('hidden');
+  $('screenReport').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+function paintReview(){
+  const L = ['A','B','C','D','E'];
+  const show = SESSION.map((_,i)=>i).filter(i => {
+    if(reviewFilter==='wrong') return !isCorrect(i);
+    if(reviewFilter==='flag')  return fReview[i] || fLang[i];
+    return true;
+  });
+  if(!show.length){ $('reviewList').innerHTML = '<p class="muted" style="margin-top:18px">Nothing matches this filter.</p>'; return; }
+  $('reviewList').innerHTML = show.map(i => {
+    const q = SESSION[i], a = answers[i], ok = isCorrect(i);
+    const chosen = q.m ? (a||[]) : (a===null?[]:[a]);
+    const right  = q.m ? q.ans : [q.ans];
+    const optsHtml = q.opts.map((o,j) => {
+      let cls='ropt', mark='';
+      if(right.includes(j)){ cls+=' correct'; mark=' — correct'; }
+      else if(chosen.includes(j)){ cls+=' chosen-wrong'; mark=' — your answer'; }
+      return '<div class="'+cls+'"><span class="ltr">'+L[j]+'</span><span>'+o+mark+'</span></div>';
+    }).join('');
+    const pills = (fReview[i]?'<span class="pill content">flagged: content</span>':'') + (fLang[i]?'<span class="pill wording">flagged: wording</span>':'');
+    return '<div class="rq '+(ok?'right':'wrong')+'">' +
+      '<span class="verdict '+(ok?'r':'w')+'">'+(chosen.length===0?'Unanswered':(ok?'Correct':'Incorrect'))+
+      ' · Q'+(i+1)+' · Level '+q.d+' · '+SCENARIOS[q.s].title+'</span>' +
+      (pills ? '<div style="margin-top:9px">'+pills+'</div>' : '') +
+      (q.m ? '<div class="selnote" style="margin-top:10px">Select '+q.ans.length+'</div>' : '') +
+      '<p class="stem" style="font-size:15.5px;margin:10px 0 14px">'+q.q+'</p>' + optsHtml +
+      '<div class="expl">'+q.e+'<div style="margin-top:12px"><b>Principle:</b> '+q.p+'</div></div>' +
+      '<div class="ask"><b>Qué te está preguntando</b>'+q.k+'</div>' +
+      '<span class="tag">'+OBJ[q.o]+'</span></div>';
+  }).join('');
+}
+
+/* ============ WIRING ============ */
+paintChoices(); paintBankLine();
+$('startBtn').addEventListener('click', startExam);
+$('retryBtn').addEventListener('click', startExam);
+$('backBtn').addEventListener('click', () => {
+  $('screenReport').classList.add('hidden'); $('screenIntro').classList.remove('hidden'); window.scrollTo(0,0);
+});
+$('prevBtn').addEventListener('click', () => { if(idx>0){ idx--; render(); } });
+$('nextBtn').addEventListener('click', () => { if(idx<SESSION.length-1){ idx++; render(); } });
+$('flagReview').addEventListener('click', () => { fReview[idx]=!fReview[idx]; render(); });
+$('flagLang').addEventListener('click', () => { fLang[idx]=!fLang[idx]; render(); });
+[['fAll','all'],['fWrong','wrong'],['fFlag','flag']].forEach(([id,v]) => {
+  $(id).addEventListener('click', () => {
+    reviewFilter = v;
+    ['fAll','fWrong','fFlag'].forEach(x => $(x).classList.toggle('on', x===id));
+    paintReview();
+  });
+});
+function closeConfirm(){ $('confirmVeil').classList.add('hidden'); }
+$('submitBtn').addEventListener('click', () => {
+  const missing = SESSION.filter((_,i)=>!answered(i)).length;
+  $('confirmMsg').textContent = missing > 0
+    ? missing+' question'+(missing===1?' is':'s are')+' incomplete. There is no penalty for guessing, so an answer always beats a blank. Submit anyway?'
+    : 'All '+SESSION.length+' answered. You will not be able to change them after this.';
+  $('confirmVeil').classList.remove('hidden'); $('confirmYes').focus();
+});
+$('confirmNo').addEventListener('click', closeConfirm);
+$('confirmVeil').addEventListener('click', e => { if(e.target === $('confirmVeil')) closeConfirm(); });
+$('confirmYes').addEventListener('click', () => { closeConfirm(); finish(); });
+document.addEventListener('keydown', e => {
+  if(!$('confirmVeil').classList.contains('hidden')){ if(e.key==='Escape') closeConfirm(); return; }
+  if($('screenExam').classList.contains('hidden')) return;
+  if(e.key==='ArrowRight' && idx < SESSION.length-1){ idx++; render(); }
+  if(e.key==='ArrowLeft'  && idx > 0){ idx--; render(); }
+  const n = ['a','b','c','d','e'].indexOf(e.key.toLowerCase());
+  if(n >= 0 && n < SESSION[idx].opts.length){
+    const q = SESSION[idx];
+    if(q.m){ const a=answers[idx], at=a.indexOf(n);
+      if(at>=0) a.splice(at,1); else { if(a.length>=q.ans.length) a.shift(); a.push(n); a.sort((x,y)=>x-y); }
+    } else answers[idx] = n;
+    render();
+  }
+});
+</script>
+</body>
+</html>
